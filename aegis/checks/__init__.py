@@ -19,7 +19,9 @@ from __future__ import annotations
 from aegis.checks.base import CheckLayer
 from aegis.checks.brace_balance import BraceBalanceCheck
 from aegis.checks.css_completeness import CssCompletenessCheck
+from aegis.checks.design_fidelity import DesignFidelityCheck
 from aegis.checks.duplicate_type_declarations import DuplicateTypeDeclarationsCheck
+from aegis.checks.feature_coverage import FeatureCoverageCheck
 from aegis.checks.hook_destructure_consistency import HookDestructureConsistencyCheck
 from aegis.checks.html_js_id_parity import HtmlJsIdParityCheck
 from aegis.checks.import_case_consistency import ImportCaseConsistencyCheck
@@ -65,7 +67,9 @@ LAYERS: list[type[CheckLayer]] = [
     NpmInstallCheck,                     # #20
     TscCheck,                            # #21
     PytestCheck,                         # #22
-    # ---- (LLM layers land here next) ----
+    # ---- LLM-judge / hybrid layers ----
+    DesignFidelityCheck,                 # #23
+    FeatureCoverageCheck,                # #24
 ]
 
 
