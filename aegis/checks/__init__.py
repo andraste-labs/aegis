@@ -19,10 +19,15 @@ from __future__ import annotations
 from aegis.checks.base import CheckLayer
 from aegis.checks.brace_balance import BraceBalanceCheck
 from aegis.checks.css_completeness import CssCompletenessCheck
+from aegis.checks.duplicate_type_declarations import DuplicateTypeDeclarationsCheck
+from aegis.checks.hook_destructure_consistency import HookDestructureConsistencyCheck
+from aegis.checks.import_case_consistency import ImportCaseConsistencyCheck
+from aegis.checks.named_import_consistency import NamedImportConsistencyCheck
 from aegis.checks.node_deps_completeness import NodeDepsCompletenessCheck
 from aegis.checks.python_completeness import PythonCompletenessCheck
 from aegis.checks.python_deps_completeness import PythonDepsCompletenessCheck
 from aegis.checks.python_imports import PythonImportsCheck
+from aegis.checks.react_prop_consistency import ReactPropConsistencyCheck
 from aegis.checks.router_prefix_consistency import RouterPrefixConsistencyCheck
 
 # Layers are registered here as they're extracted. Each module exports
@@ -33,13 +38,18 @@ from aegis.checks.router_prefix_consistency import RouterPrefixConsistencyCheck
 # short-circuits the more expensive layers downstream.
 LAYERS: list[type[CheckLayer]] = [
     # ---- Phase 1.2: structural / AST layers ----
-    PythonImportsCheck,             # #4  in LAYER_INDEX.md
-    PythonCompletenessCheck,        # #5
-    PythonDepsCompletenessCheck,    # #6
-    RouterPrefixConsistencyCheck,   # #7
-    NodeDepsCompletenessCheck,      # #8
-    CssCompletenessCheck,           # #9
-    BraceBalanceCheck,              # #15
+    PythonImportsCheck,                  # #4  in LAYER_INDEX.md
+    PythonCompletenessCheck,             # #5
+    PythonDepsCompletenessCheck,         # #6
+    RouterPrefixConsistencyCheck,        # #7
+    NodeDepsCompletenessCheck,           # #8
+    CssCompletenessCheck,                # #9
+    ReactPropConsistencyCheck,           # #10
+    NamedImportConsistencyCheck,         # #11
+    ImportCaseConsistencyCheck,          # #12
+    DuplicateTypeDeclarationsCheck,      # #13
+    HookDestructureConsistencyCheck,     # #14
+    BraceBalanceCheck,                   # #15
     # ---- (more layers land here as extraction progresses) ----
 ]
 
