@@ -24,14 +24,18 @@ from aegis.checks.hook_destructure_consistency import HookDestructureConsistency
 from aegis.checks.html_js_id_parity import HtmlJsIdParityCheck
 from aegis.checks.import_case_consistency import ImportCaseConsistencyCheck
 from aegis.checks.interactivity import InteractivityCheck
+from aegis.checks.js_syntax import JsSyntaxCheck
 from aegis.checks.named_import_consistency import NamedImportConsistencyCheck
 from aegis.checks.node_deps_completeness import NodeDepsCompletenessCheck
+from aegis.checks.npm_install import NpmInstallCheck
+from aegis.checks.pytest_check import PytestCheck
 from aegis.checks.python_completeness import PythonCompletenessCheck
 from aegis.checks.python_deps_completeness import PythonDepsCompletenessCheck
 from aegis.checks.python_imports import PythonImportsCheck
 from aegis.checks.react_prop_consistency import ReactPropConsistencyCheck
 from aegis.checks.router_prefix_consistency import RouterPrefixConsistencyCheck
 from aegis.checks.static_imports import StaticImportsCheck
+from aegis.checks.tsc import TscCheck
 
 # Layers are registered here as they're extracted. Each module exports
 # its own CheckLayer subclasses; this list is the canonical order.
@@ -56,7 +60,12 @@ LAYERS: list[type[CheckLayer]] = [
     StaticImportsCheck,                  # #16
     HtmlJsIdParityCheck,                 # #17
     InteractivityCheck,                  # #18
-    # ---- (more layers land here as extraction progresses) ----
+    # ---- subprocess layers ----
+    JsSyntaxCheck,                       # #19
+    NpmInstallCheck,                     # #20
+    TscCheck,                            # #21
+    PytestCheck,                         # #22
+    # ---- (LLM layers land here next) ----
 ]
 
 
