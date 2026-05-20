@@ -17,14 +17,18 @@ the list is intentionally small; v1.0.0 release will expose all 24.
 from __future__ import annotations
 
 from aegis.checks.base import CheckLayer
+from aegis.checks.brace_balance import BraceBalanceCheck
 
 # Layers are registered here as they're extracted. Each module exports
 # its own CheckLayer subclasses; this list is the canonical order.
+#
+# Order matters: structural checks (AST, balance) run before semantic
+# (build), which run before judgment (LLM). An early failure
+# short-circuits the more expensive layers downstream.
 LAYERS: list[type[CheckLayer]] = [
-    # Phase 1.1 — meta layers (stack detection, materialization) live in
-    # the pipeline, not as CheckLayers.
-    # Phase 1.2 — extracted simple deterministic layers go here first.
-    # (To be populated as extraction commits land.)
+    # ---- Phase 1.2: structural / AST layers ----
+    BraceBalanceCheck,  # #15 in LAYER_INDEX.md
+    # ---- (more layers land here as extraction progresses) ----
 ]
 
 
