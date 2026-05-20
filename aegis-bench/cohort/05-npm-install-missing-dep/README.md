@@ -2,8 +2,8 @@
 
 **Category:** E — Build failures
 **Stack:** Node.js (React 18 + Vite)
-**Layer fired:** `build_install` (deterministic; subprocess `npm install`)
-**Expected verdict:** `FAIL · build_install · ENOTFOUND react@99.0.0`
+**Layer fired:** `npm_install` (deterministic; subprocess `npm install --ignore-scripts`)
+**Expected verdict:** `FAIL · npm_install · ERESOLVE react@"99.0.0"`
 
 ## What this case demonstrates
 
@@ -20,10 +20,11 @@ React 18. The only problem is in `package.json`:
 
 Version `99.0.0` of React doesn't exist on the npm registry (current
 major is 18). When the validator runs `npm install --ignore-scripts`,
-the resolution step fails with `ENOTFOUND` (or `ETARGET`, depending on
-npm version). The install never completes, so all downstream layers
-(`build_compile`, `test_run`, `design_fidelity`) are skipped — Aegis
-short-circuits because there's no built project to validate.
+npm cannot find a matching version and the resolver short-circuits
+with `ERESOLVE`: the explicit `react@"99.0.0"` requirement contradicts
+`react-dom`'s peer dependency on `react@^18.x`. The install never
+completes, so all downstream layers (`tsc`, `pytest`, `design_fidelity`)
+are skipped — Aegis has nothing built to validate.
 
 This is the simplest case in the build-failure category. It exists to
 demonstrate that **Aegis runs actual `npm install`** rather than just
@@ -38,7 +39,7 @@ parsing `package.json`.
 | **GPT-4 critique** | Same | Reads code; doesn't run install. |
 | **`npm audit`** | N/A (requires installed packages) | Operates on `package-lock.json` after install. Can't run until install succeeds. |
 | **`npm outdated`** | N/A (requires installed packages) | Same. |
-| **Aegis (this case)** | **FAIL — ENOTFOUND** | Runs `npm install --ignore-scripts`; catches the missing version at registry resolution. |
+| **Aegis (this case)** | **FAIL — ERESOLVE** | Runs `npm install --ignore-scripts`; catches the missing version at registry resolution. |
 
 This is the value proposition for layer 20 (the `npm install`
 subprocess) — no amount of static analysis substitutes for actually
