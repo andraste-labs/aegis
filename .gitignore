@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+build/
+dist/
+.eggs/
+pip-wheel-metadata/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual envs
+venv/
+.venv/
+env/
+.env
+
+# Node (for stack validator subprocesses)
+node_modules/
+package-lock.json.bak
+npm-debug.log*
+yarn-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Aegis runtime
+aegis-bench/results/*.json
+!aegis-bench/results/.gitkeep
+aegis-bench/work/
+*.log
+
+# Cloudflare Pages / Workers (for the landing site)
+.wrangler/
+.dev.vars

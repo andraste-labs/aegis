@@ -1,0 +1,82 @@
+# Aegis CI — runs lint, tests, and aegis-bench on every PR.
+#
+# NOTE: This workflow is a skeleton ahead of the September 2026 public
+# release. The actual validator code lands in the repo at launch; this
+# file documents the CI surface we'll have on day one.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint (ruff + mypy)
+    runs-on: ubuntu-latest
+    if: ${{ false }}  # disabled until code lands; remove once src/ exists
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - run: pip install -e ".[dev]"
+      - run: ruff check src/
+      - run: mypy src/
+
+  test:
+    name: Unit tests
+    runs-on: ${{ matrix.os }}
+    if: ${{ false }}  # disabled until code lands
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - run: pip install -e ".[dev]"
+      - run: pytest --cov=aegis tests/
+
+  bench:
+    name: aegis-bench (reproducibility check)
+    runs-on: ubuntu-latest
+    if: ${{ false }}  # disabled until code lands
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: pip install -e ".[dev]"
+      - run: python aegis-bench/scripts/run_aegis.py
+      - name: Upload bench results
+        uses: actions/upload-artifact@v4
+        with:
+          name: aegis-bench-${{ github.sha }}
+          path: aegis-bench/results/
+
+  # Placeholder job that ALWAYS runs, so PRs aren't blocked by the
+  # disabled jobs above. Remove once code lands.
+  placeholder:
+    name: Pre-release placeholder
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Aegis is pre-release. Public source launch: September 2026."
+          echo "CI will be enabled when the validator code lands."

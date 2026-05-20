@@ -1,0 +1,82 @@
+# Security Policy
+
+## Supported versions
+
+> 🚧 **Pre-release notice (May 2026):** The public source release is
+> planned for **September 2026**. There are no supported versions yet;
+> this policy describes how vulnerability reports will be handled
+> *after* launch.
+
+After September 2026:
+
+| Version | Supported |
+|---|---|
+| Latest minor release | ✅ |
+| Previous minor release | ✅ (security fixes only, for 6 months) |
+| Older | ❌ |
+
+## What counts as a security issue
+
+Aegis runs build and test commands against untrusted code. The threat
+model assumes the code being validated may be malicious.
+
+Reportable security issues include:
+
+- **Sandbox escape** — code under validation gaining access to the host
+  environment, credentials, or network resources it should not reach.
+- **Subprocess env leakage** — the env-scrubbing layer failing to remove
+  a sensitive environment variable before launching the subprocess.
+- **Supply-chain bypass** — code under validation managing to run
+  install-time scripts (`preinstall` / `postinstall`) despite the
+  `--ignore-scripts` flag.
+- **Timeout bypass** — code under validation running longer than the
+  configured per-command timeout (default 300s).
+- **Prompt injection that escapes the boundary markers** — user-supplied
+  text being interpreted as instructions by the LLM judge despite
+  sanitization.
+
+Reportable issues do **not** include:
+
+- The validator giving an incorrect verdict on a piece of code. This is
+  an accuracy bug — open a regular issue with a reproducible test case.
+- A check layer being slow. Open a regular performance issue.
+- A configuration choice you disagree with. Open a discussion.
+
+## Reporting a vulnerability
+
+**Do not open a public issue for security reports.**
+
+Email [security@andrastelabs.com](mailto:security@andrastelabs.com) with:
+
+1. A description of the vulnerability.
+2. Steps to reproduce, or a proof-of-concept.
+3. The impact you've observed or predicted.
+4. Your name and how you'd like to be credited (or "anonymous").
+
+We will acknowledge receipt within 5 business days, provide an initial
+assessment within 14 days, and aim to issue a fix within 60 days for
+critical issues.
+
+## Disclosure policy
+
+Once a fix is released, we will:
+
+1. Publish a GitHub Security Advisory describing the vulnerability,
+   affected versions, and the fix.
+2. Credit the reporter (unless they prefer anonymity).
+3. Update CHANGELOG.md.
+
+We follow a 90-day coordinated disclosure window from the first report.
+If 90 days pass without a fix, the reporter may disclose publicly with
+our acknowledgment.
+
+## Out of scope
+
+The Aegis validator itself is open source and runs locally. We do not
+operate a hosted version. Issues with Andraste Labs' hosted products
+(Team-AI, etc.) should be reported to their respective security contacts.
+
+## About
+
+Aegis is maintained by [Andraste Labs](https://andrastelabs.com). For
+general questions, contact [github@andrastelabs.com](mailto:github@andrastelabs.com).
