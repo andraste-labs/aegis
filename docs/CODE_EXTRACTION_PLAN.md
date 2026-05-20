@@ -381,17 +381,101 @@ This is the evidence for "Aegis catches what baselines miss."
   validator is and will remain Apache 2.0. The commercial product is
   Team-AI, which uses Aegis.
 
-## Open questions (to resolve before Phase 1)
+## Decisions locked in (2026-05-20)
 
-1. **Package name on PyPI?** `aegis` is taken (a small Python package
-   for AWS something). Likely candidates: `aegis-validator`,
-   `aegis-check`, `aegis-cli`. Decision needed before Phase 3.
-2. **Single package or split?** `aegis` (library) + `aegis-cli` (CLI)
-   as two packages, or one package with optional CLI extra
-   (`pip install aegis-validator[cli]`)? Decision needed before Phase 3.
-3. **Python version floor?** Currently Team-AI uses 3.11+. Match
-   exactly, or support 3.10+ to widen audience? Decision needed before
-   Phase 1.
+The three questions that needed to be answered before Phase 1 are
+resolved. They cannot be revisited mid-extraction without breaking
+downstream work.
+
+### 1. Package name on PyPI: **`aegis-validator`**
+
+PyPI availability check (2026-05-20):
+
+| Candidate | Status |
+|---|---|
+| `aegis` | ❌ Taken (small unrelated package) |
+| **`aegis-validator`** | ✅ **Available — chosen** |
+| `aegis-check` | ✅ Available (short but ambiguous) |
+| `aegis-bench` | ✅ Available (but bench is a sub-thing) |
+| `aegis-cli` | ❌ Taken (this affected decision #2) |
+
+The PyPI distribution name and the Python import name are different
+on purpose (same pattern as `scikit-learn` → `import sklearn`):
+
+```bash
+pip install aegis-validator
+```
+```python
+import aegis
+report = aegis.validate("./code")
+```
+
+Rationale: descriptive distribution name (so PyPI search surfaces the
+package for "validator" queries), short import name (so user code
+isn't cluttered with `aegis_validator.validate(...)` calls).
+
+### 2. Package layout: **Single package, CLI included by default**
+
+Because `aegis-cli` is taken on PyPI, a clean two-package split isn't
+available. We ship one package with the CLI bundled:
+
+```bash
+pip install aegis-validator
+```
+gets you both `import aegis` (library) and `aegis check ./path` (CLI).
+
+Rationale: the CLI has no heavy dependencies (argparse is in stdlib;
+pretty output uses minimal `rich` or none at all). Splitting into
+`[cli]` extra adds cognitive load for users without saving meaningful
+install footprint. Single source of truth, single version number.
+
+### 3. Python floor: **3.11+**
+
+| Version | EOL | September 2026 launch buffer |
+|---|---|---|
+| 3.10 | Oct 2026 | EOL within a month of launch — not worth supporting |
+| **3.11** | **Oct 2027** | **1-year buffer — chosen floor** |
+| 3.12 | Oct 2028 | Officially supported |
+| 3.13 | Oct 2029 | Officially supported |
+
+Rationale:
+- 3.10 reaches EOL one month after launch — any user on 3.10 will
+  need to upgrade for security patches anyway.
+- 3.11 brought significant runtime speedups and improved error
+  messages, both of which matter for a validator that runs subprocess
+  Python compilation.
+- Team-AI runs on 3.11 internally; matching simplifies the extraction
+  (no version-shim code for typing differences).
+- Aegis's *target* code (the projects it validates) can be any Python
+  version — `aegis check` runs the target's own interpreter, not its
+  own. The 3.11 floor is for Aegis itself, not for the code it
+  validates.
+
+### Implications
+
+These three decisions lock in `pyproject.toml` content for Phase 1:
+
+```toml
+[project]
+name = "aegis-validator"
+version = "0.1.0-dev"
+requires-python = ">=3.11"
+description = "A deterministic validator for AI-generated code."
+authors = [{ name = "Andraste Labs", email = "github@andrastelabs.com" }]
+license = { text = "Apache-2.0" }
+readme = "README.md"
+
+[project.scripts]
+aegis = "aegis_cli.__main__:main"
+
+[project.urls]
+homepage = "https://aegis.andrastelabs.com"
+repository = "https://github.com/andraste-labs/aegis"
+documentation = "https://github.com/andraste-labs/aegis/tree/main/docs"
+```
+
+The `pyproject.toml` is added in Phase 1 alongside the first extracted
+code.
 
 ## Timeline summary
 
