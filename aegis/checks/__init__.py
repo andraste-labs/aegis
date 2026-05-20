@@ -18,6 +18,9 @@ from __future__ import annotations
 
 from aegis.checks.base import CheckLayer
 from aegis.checks.brace_balance import BraceBalanceCheck
+from aegis.checks.python_completeness import PythonCompletenessCheck
+from aegis.checks.python_deps_completeness import PythonDepsCompletenessCheck
+from aegis.checks.python_imports import PythonImportsCheck
 
 # Layers are registered here as they're extracted. Each module exports
 # its own CheckLayer subclasses; this list is the canonical order.
@@ -27,7 +30,10 @@ from aegis.checks.brace_balance import BraceBalanceCheck
 # short-circuits the more expensive layers downstream.
 LAYERS: list[type[CheckLayer]] = [
     # ---- Phase 1.2: structural / AST layers ----
-    BraceBalanceCheck,  # #15 in LAYER_INDEX.md
+    PythonImportsCheck,           # #4  in LAYER_INDEX.md
+    PythonCompletenessCheck,      # #5
+    PythonDepsCompletenessCheck,  # #6
+    BraceBalanceCheck,            # #15
     # ---- (more layers land here as extraction progresses) ----
 ]
 
