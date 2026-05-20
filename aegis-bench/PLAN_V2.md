@@ -13,8 +13,14 @@ the validator.
 - 🟡 **Scaffolded** — directory exists, contents not yet drafted
 - ⚪ **Planned** — described here only, no files yet
 
-As of this commit, all 16 are ⚪ Planned. The 4 v1 cases (01-04) are
-already 🟢 Drafted in the Team-AI repo.
+As of this commit:
+
+- 🟢 **Drafted** (5): 01–04 (in Team-AI/aegis-bench/), 05 (here)
+- ⚪ **Planned** (15): 06–20
+
+The 4 v1 cases (01-04) live in Team-AI/aegis-bench/ today and move
+into this repo at Phase 5 of the code extraction (per
+docs/CODE_EXTRACTION_PLAN.md).
 
 ## Categories
 
@@ -44,15 +50,27 @@ These will be copied verbatim into this repo at code extraction.
 
 ### Category E — Build failures
 
-#### 05 — npm-install-missing-dep
-- **Stack:** Node.js
-- **Brief:** "A simple todo list React app."
-- **Generated failure mode:** `package.json` references `react@99.0.0`
-  (a version that doesn't exist). `npm install` fails with `ENOTFOUND`.
-- **Validator layer fired:** Build (`npm install` subprocess)
-- **Expected verdict:** `FAIL · build_install · stdout includes "ENOTFOUND"`
-- **Baseline comparison:** eslint won't catch (config valid); GPT-4
-  critique might flag the unusual version but won't run install.
+#### 05 — npm-install-missing-dep 🟢 DRAFTED
+
+- **Stack:** Node.js (React 18 + Vite)
+- **Brief:** Simple in-memory React todo list (add / toggle / delete /
+  remaining count).
+- **Generated failure mode:** `package.json` declares `react@99.0.0`,
+  a version that doesn't exist on the npm registry. `npm install`
+  fails at the resolution step with `ENOTFOUND`. All downstream
+  validator layers short-circuit (no build to validate).
+- **Validator layer fired:** Build / install (layer 20 — `npm install
+  --ignore-scripts` subprocess)
+- **Expected verdict:** `FAIL · build_install · stderr contains "ENOTFOUND"
+  and "react@99.0.0"`
+- **Baseline comparison:**
+  - `eslint`: PASS (operates on source, not registry resolution)
+  - Raw Claude critique: may flag the unusual version but won't install
+  - GPT-4 critique: same — code review without execution
+  - `npm audit` / `npm outdated`: N/A (require installed packages)
+  - **Aegis**: catches via the actual `npm install` subprocess
+- **Files:** `cohort/05-npm-install-missing-dep/` — see directory for
+  full case (brief, input/, expected, README).
 
 #### 06 — typescript-compile-error
 - **Stack:** Node.js (TypeScript)
