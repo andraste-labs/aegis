@@ -21,7 +21,9 @@ from aegis.checks.brace_balance import BraceBalanceCheck
 from aegis.checks.css_completeness import CssCompletenessCheck
 from aegis.checks.duplicate_type_declarations import DuplicateTypeDeclarationsCheck
 from aegis.checks.hook_destructure_consistency import HookDestructureConsistencyCheck
+from aegis.checks.html_js_id_parity import HtmlJsIdParityCheck
 from aegis.checks.import_case_consistency import ImportCaseConsistencyCheck
+from aegis.checks.interactivity import InteractivityCheck
 from aegis.checks.named_import_consistency import NamedImportConsistencyCheck
 from aegis.checks.node_deps_completeness import NodeDepsCompletenessCheck
 from aegis.checks.python_completeness import PythonCompletenessCheck
@@ -29,6 +31,7 @@ from aegis.checks.python_deps_completeness import PythonDepsCompletenessCheck
 from aegis.checks.python_imports import PythonImportsCheck
 from aegis.checks.react_prop_consistency import ReactPropConsistencyCheck
 from aegis.checks.router_prefix_consistency import RouterPrefixConsistencyCheck
+from aegis.checks.static_imports import StaticImportsCheck
 
 # Layers are registered here as they're extracted. Each module exports
 # its own CheckLayer subclasses; this list is the canonical order.
@@ -50,6 +53,9 @@ LAYERS: list[type[CheckLayer]] = [
     DuplicateTypeDeclarationsCheck,      # #13
     HookDestructureConsistencyCheck,     # #14
     BraceBalanceCheck,                   # #15
+    StaticImportsCheck,                  # #16
+    HtmlJsIdParityCheck,                 # #17
+    InteractivityCheck,                  # #18
     # ---- (more layers land here as extraction progresses) ----
 ]
 
