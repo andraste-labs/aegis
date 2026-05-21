@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "passed": false,
+  "failed_layer": "design_fidelity",
+  "failed_stack": "static_html",
+  "deterministic_override_expected": false,
+  "llm_calibration": "pending",
+  "calibration_note": "This case targets the density / spacing-rhythm dimension of design fidelity — a judgement axis where Aegis has NO deterministic floor. The deterministic override checks palette hexes, font families, and a fixed forbidden-pattern list per philosophy. None of those fire here: palette is correct, fonts are imported and used, and 'editorial' has no forbidden-pattern entries. The expected FAIL relies entirely on the LLM judge spotting the density mismatch. Final score capture against claude-opus-4-7 happens before public launch.",
+  "deterministic_check_findings": {
+    "palette": {
+      "required_hex": ["#2A4A38", "#0F1F18", "#C9A24A", "#FAF7F1", "#1A1A1A"],
+      "found_in_code": true,
+      "verdict": "palette dimension NOT capped"
+    },
+    "fonts": {
+      "required_fonts": ["Playfair Display", "Source Sans 3"],
+      "found_in_code": true,
+      "verdict": "philosophy dimension NOT capped on typography"
+    },
+    "philosophy_forbidden_patterns": {
+      "philosophy_id": "editorial",
+      "in_registry": false,
+      "verdict": "editorial has no forbidden-pattern entry; no philosophy override"
+    }
+  },
+  "expected_llm_verdict": {
+    "palette": "9/10 — every brief hex appears in styles.css",
+    "philosophy": "5-6/10 — typography is honored but visual rhythm reads SaaS-tight; serif headings at 1.5rem aren't enough by themselves",
+    "density_motion": "3-4/10 — CRITICAL FAILURE: brief calls for 'spacious' / 'generous whitespace / slow reading rhythm', code uses 0.25rem gaps, 0.5rem section padding, 0.375rem button padding — reads as a SaaS dashboard regardless of typography",
+    "tone_microcopy": "8/10 — copy IS editorial / calm",
+    "overall": "approx 6/10 — below the 6 threshold OR with density_motion below 3 → FAIL"
+  },
+  "rationale": "The brief explicitly specifies `density: 'spacious'` AND `spacing_scale: 'spacious'` AND notes call for 'generous whitespace, slow reading rhythm, vertical breathing room'. The generated CSS uses 0.25-0.5rem paddings and gaps everywhere — SaaS-dashboard density, the exact opposite. The palette is correct (all five hexes present). The fonts are correct (Playfair Display + Source Sans 3 both imported via @import and used in font-family declarations). The deterministic override has no rule that fires on density mismatch — only the LLM judge can read 'p-2 / gap-2 / m-1 throughout' and connect it to the brief's 'spacious' demand. This case is intentionally designed as the LLM's job: when the deterministic floor stays silent, the LLM's specificity matters. Documenting the expected verdict here so when the calibration run happens, deviations from this baseline indicate either a model update or a layer change.",
+  "baseline_comparison": {
+    "stylelint": "PASS — CSS is structurally valid; no rule for 'compare spacing to brief'.",
+    "design_lint": "N/A — no widespread tool for density/rhythm validation.",
+    "pure_LLM_judge": "Likely FAIL if prompt is specific enough — the LLM CAN read the brief and the CSS together and notice the gap mismatch.",
+    "manual_design_review": "FAIL — a designer opens the page and immediately calls out 'this isn't spacious at all'.",
+    "Aegis (LLM-only on this axis)": "FAIL via density_motion < 3 → weak_dimension trips even with overall ≥ 6. Documented expectation; final calibration pending."
+  }
+}
