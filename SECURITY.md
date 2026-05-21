@@ -2,13 +2,6 @@
 
 ## Supported versions
 
-> 🚧 **Pre-release notice (May 2026):** The public source release is
-> planned for **September 2026**. There are no supported versions yet;
-> this policy describes how vulnerability reports will be handled
-> *after* launch.
-
-After September 2026:
-
 | Version | Supported |
 |---|---|
 | Latest minor release | ✅ |

@@ -1,9 +1,3 @@
-<!--
-🚧 Aegis is pre-release (public launch: September 2026). PRs from
-external contributors will be reviewed after the public release. This
-template is here so the format is established at launch.
--->
-
 ## What does this PR do
 
 One or two sentences. Be specific.

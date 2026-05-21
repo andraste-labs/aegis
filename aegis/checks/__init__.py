@@ -2,16 +2,11 @@
 
 Each module under ``aegis.checks.*`` contributes one or more
 ``CheckLayer`` subclasses. The pipeline imports the registry to know
-which layers to run for a given stack and which order to run them in.
+which layers to run for a given stack and the order to run them in.
 
 Layer execution order matters: structural checks (AST, imports) run
 before semantic checks (build, test), which run before judgment checks
-(design fidelity, feature coverage). A layer that fails early can
-short-circuit the run before the more expensive layers consume
-subprocess or LLM time.
-
-This registry is populated as Phase 1 extraction progresses. Pre-launch,
-the list is intentionally small; v1.0.0 release will expose all 24.
+(design fidelity, feature coverage).
 """
 
 from __future__ import annotations
@@ -39,15 +34,11 @@ from aegis.checks.router_prefix_consistency import RouterPrefixConsistencyCheck
 from aegis.checks.static_imports import StaticImportsCheck
 from aegis.checks.tsc import TscCheck
 
-# Layers are registered here as they're extracted. Each module exports
-# its own CheckLayer subclasses; this list is the canonical order.
-#
-# Order matters: structural checks (AST, balance) run before semantic
-# (build), which run before judgment (LLM). An early failure
-# short-circuits the more expensive layers downstream.
+# Layers are registered in canonical execution order. The numeric
+# comments correspond to the entries in docs/LAYER_INDEX.md.
 LAYERS: list[type[CheckLayer]] = [
-    # ---- Phase 1.2: structural / AST layers ----
-    PythonImportsCheck,                  # #4  in LAYER_INDEX.md
+    # ---- structural / AST layers ----
+    PythonImportsCheck,                  # #4
     PythonCompletenessCheck,             # #5
     PythonDepsCompletenessCheck,         # #6
     RouterPrefixConsistencyCheck,        # #7

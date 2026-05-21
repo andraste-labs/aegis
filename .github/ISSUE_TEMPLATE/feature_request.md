@@ -6,9 +6,6 @@ labels: enhancement, needs-discussion
 assignees: ''
 ---
 
-> 🚧 Aegis is pre-release (public launch: September 2026). We will only
-> act on feature requests filed against the public release.
-
 ## What problem does this solve
 
 A specific class of bug or AI-generated-code failure mode that current
@@ -50,8 +47,7 @@ Which stacks does this apply to?
 - [ ] Python
 - [ ] Node.js / TypeScript / JavaScript
 - [ ] Static HTML
-- [ ] Go (roadmap)
-- [ ] Rust (roadmap)
+- [ ] Other (specify)
 - [ ] Language-agnostic
 
 ## Alternatives considered

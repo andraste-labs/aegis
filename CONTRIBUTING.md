@@ -2,93 +2,74 @@
 
 Thank you for considering a contribution.
 
-> 🚧 **Pre-launch notice (May 2026):** The public source release is planned
-> for **September 2026**. We are not accepting code contributions, bug
-> reports, or feature requests until then. This document describes how
-> contribution will work *after* launch, so we have it in place from day one.
-
 ## Code of Conduct
 
-Participation in this project is governed by our
-[Code of Conduct](./CODE_OF_CONDUCT.md). Read it before contributing.
+Participation is governed by the [Code of Conduct](./CODE_OF_CONDUCT.md).
+Read it before contributing.
 
-## How you can help (post-launch)
+## How you can help
 
-### 1. Run the bench, share results
+### Run the bench, share results
 
-`aegis-bench/` is a reproducible test cohort. Run it against your own
-AI-generated code and open a discussion (or PR) with what you found.
-Real-world failure modes drive new check layers.
+`aegis-bench/` is a reproducible cohort of validation cases. Run it
+against your own AI-generated code and open a discussion or PR with
+what you found. Real failure modes inform new check layers.
 
-### 2. Add a check layer
+### Add a check layer
 
-The validator has 24 layers today; some are simple AST checks, some are
-deterministic build/test runners, one is an LLM judge with a deterministic
-override. New layers are welcome if they:
+Aegis ships layers under `aegis/checks/`. New layers should:
 
-- **Are deterministic where possible.** LLM judgment is allowed only when
-  no deterministic signal is available, and only with a deterministic
-  override that can fail the layer regardless of the LLM's vote.
-- **Have a bench case.** Every new layer ships with a cohort case in
-  `aegis-bench/cohort/` that demonstrates the failure it catches.
-- **Are typed.** Failures are tagged `deterministic`, `hybrid`, or
-  `llm_judge` so the rework dispatcher knows how to prioritize them.
+- Be deterministic where possible. LLM judgment is allowed only with
+  a deterministic override that can fail the layer regardless of the
+  model's verdict.
+- Ship with a bench case under `aegis-bench/cohort/` that
+  demonstrates the failure mode the layer catches.
+- Declare a `KIND` (`deterministic`, `hybrid`, or `llm_judge`) so the
+  pipeline knows how to schedule it.
 
-### 3. Add a stack
+### Add a stack
 
-Today: Python, Node.js, static HTML. Roadmap: Go, Rust.
+Today: Python, Node.js / TypeScript / JavaScript, static HTML.
 
-If you want to add a stack, the requirements are:
+A new stack needs:
 
-- A `_detect_<stack>()` function that recognizes the stack from directory
-  contents (manifests, dotfiles, language-specific markers).
-- A `_validate_<stack>()` pipeline that runs build + tests in a sandboxed
-  subprocess with the standard env-scrub and `--ignore-scripts` defaults.
-- A bench cohort case in `aegis-bench/cohort/` for the new stack.
+- A detection helper in `aegis/stack_detection.py`.
+- One or more check layers in `aegis/checks/` covering install, type
+  check (if applicable), and test runner.
+- A bench cohort case demonstrating the failure mode.
+- Subprocess calls routed through `aegis.subprocess_runner.run_cmd`
+  (env scrub + timeout + `--ignore-scripts` for package managers).
 
-### 4. Improve the docs
+### Improve the docs
 
-`METHODOLOGY.md` and `docs/` are first-class deliverables. Clarity
-improvements, examples, and translation contributions are welcome.
+`METHODOLOGY.md` and `docs/` are first-class. Clarity improvements,
+worked examples, and translations are welcome.
 
 ## What we won't accept
 
-- **Layers that add LLM judgment without deterministic override.** If a
-  check can't fail without the model agreeing, it isn't a check — it's
-  a vibe. We don't ship vibes.
-- **Stack support without a bench cohort case.** Untested stack support
-  is worse than no support.
-- **"Refactors" without a reproducible problem.** Style preferences are
-  fine; refactors without a measurable improvement are not.
+- Layers that add LLM judgment without a deterministic override.
+- Stack support without a bench cohort case.
+- Refactors without a reproducible problem they solve.
 
 ## Workflow
 
-After September 2026:
-
-1. **Discuss before coding.** Open an issue describing the problem before
-   writing a PR. Many "improvements" turn out to be opinion.
-2. **Branch from `main`.** Name the branch `<type>/<short-description>`,
-   e.g., `feat/go-stack-validator` or `fix/regex-import-resolution`.
-3. **Keep PRs focused.** One layer per PR, one bug fix per PR. Mixed PRs
-   take longer to review and to revert.
-4. **Run `aegis-bench`.** CI runs it; you should run it locally too.
-5. **Write a test.** New behavior needs a test. Bench cohort cases count.
-6. **Sign your commits.** Use `git commit -s` to add a DCO line.
-
-## Founding Architects
-
-The first 100 contributors with merged code will be recognized as
-**Founding Architects** in the README of the first major release. This
-is a permanent record — not a perk that can be revoked. If you want
-your name in the list, see issue #1 (opened at launch).
+1. Open an issue describing the problem before writing a PR. Many
+   "improvements" turn out to be opinion; surfacing them early saves
+   review time.
+2. Branch from `main` as `<type>/<short-description>` —
+   e.g. `feat/go-stack` or `fix/import-resolver`.
+3. Keep PRs focused. One layer per PR, one bug fix per PR.
+4. Run `pytest` and the bench locally. CI runs both; local runs
+   surface failures faster.
+5. New behavior needs a test. Bench cohort cases count.
+6. Sign your commits (`git commit -s`).
 
 ## License
 
-By contributing, you agree that your contributions will be licensed
-under the [Apache License 2.0](./LICENSE).
+By contributing, you agree your contributions are licensed under
+[Apache License 2.0](./LICENSE).
 
 ## Questions
 
 Open a [discussion](https://github.com/andraste-labs/aegis/discussions)
-after launch, or email [github@andrastelabs.com](mailto:github@andrastelabs.com)
-in the interim.
+or email [github@andrastelabs.com](mailto:github@andrastelabs.com).

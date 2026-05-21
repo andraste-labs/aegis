@@ -6,10 +6,6 @@ labels: bug, needs-triage
 assignees: ''
 ---
 
-> 🚧 Aegis is pre-release (public launch: September 2026). We will only
-> act on bug reports filed against the public release. This template is
-> here so the format is established at launch.
-
 ## What happened
 
 A clear description of what Aegis did versus what you expected.

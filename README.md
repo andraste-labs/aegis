@@ -2,94 +2,70 @@
 
 A deterministic validator for AI-generated code. Apache 2.0.
 
-> 🚧 **Public source release: September 2026.** Star this repo or
-> [watch for releases](https://github.com/andraste-labs/aegis/releases)
-> to be notified at launch.
-
 ## What it does
 
-Aegis runs a multi-layer pipeline against a directory of AI-generated code
-and reports whether it's shippable.
+`aegis check ./path` runs a 24-layer pipeline against a directory of
+code and reports whether the validation passes. Layers cover AST
+parsing, import resolution, cross-file consistency, package install,
+type check, test execution, design-brief fidelity, and feature
+coverage. 22 layers are deterministic (no model call); 1 is LLM-judge;
+1 is hybrid (LLM verdict with a deterministic override).
 
-- **24 check layers** — 22 deterministic (AST, regex, build, test runners),
-  1 LLM-as-judge (design fidelity), 1 hybrid (feature coverage with
-  deterministic override).
-- **Multi-stack** — Python, Node.js (TypeScript / JavaScript), and static
-  HTML in the first release. Go and Rust are on the roadmap.
-- **Honest FAILED** — if the layers can't be made green within the rework
-  budget, Aegis writes a structured failure report instead of marking
-  the output green anyway.
+## Install
 
-## Why it exists
-
-AI coding tool adoption rose from 70% (2023) to 84% (2025). Trust in
-tool accuracy fell from 40% (2024) to 29% (2025). The industry settled
-for that trade-off. Aegis is for the minority who didn't.
-
-## How it works (preview)
-
-```bash
-# Single command, any directory:
-aegis check ./my-buggy-ai-output
-
-[Aegis 24-layer pipeline]
-✓ Syntax (AST parse)               0.3s
-✓ Imports resolved                 0.5s
-✗ Semantic — MISSING_HOOK_HANDLER  1.2s
-  → Rework triggered
-✓ Semantic (after rework)          4.1s
-✓ Build (npm install + build)      3.2s
-✓ Tests pass                       5.8s
-✓ Design fidelity (LLM judge)      2.1s
-
-[Total: 17.2s · 1 error found · 1 auto-fixed · SHIP ✓]
+```
+pip install aegis-validator
 ```
 
-## Roadmap
+Anthropic SDK is an optional extra for the LLM-using layers:
 
-| Date | Milestone |
-|---|---|
-| **September 2026** | **Apache 2.0 public release — full source** |
-| Q4 2026 | aegis-bench v2: 20+ cohort cases, third-party baseline comparisons |
-| 2027 | Go and Rust stack support |
-| 2027+ | "Aegis-Verified" badge program — open standard |
-
-## Reproducible benchmark
-
-Once released, the `aegis-bench/` suite will let any developer reproduce
-our results on their own machine:
-
-```bash
-git clone https://github.com/andraste-labs/aegis
-cd aegis/aegis-bench
-python scripts/run_aegis.py
+```
+pip install aegis-validator[anthropic]
 ```
 
-The output is the evidence. No screenshots, no demos — runnable code.
+## Quick start
+
+```
+aegis check ./my-code                          # deterministic + LLM
+aegis check ./my-code --no-llm                 # deterministic only
+aegis check ./my-code --brief brief.json       # include design / feature layers
+aegis check ./my-code --json report.json       # machine-readable report
+aegis check ./my-code --exit-on-fail           # exit 1 on FAIL
+```
+
+The LLM-using layers (`design_fidelity`, `feature_coverage`) skip
+unless an `ANTHROPIC_API_KEY` is set and a `brief.json` is supplied.
+
+## Layers
+
+See [`docs/LAYER_INDEX.md`](./docs/LAYER_INDEX.md) for the full list
+of layers, their kinds (deterministic / hybrid / llm_judge), and the
+file under `aegis/checks/` that implements each one.
+
+## Benchmark
+
+`aegis-bench/` contains a cohort of reproducible cases. Each case has
+a `brief.json`, an `input/` directory, an `expected.json` describing
+the validator output, and a short technical README.
+
+```
+python -m aegis_cli check aegis-bench/cohort/<case>/input \
+    --brief aegis-bench/cohort/<case>/brief.json \
+    --no-llm
+```
+
+See [`aegis-bench/METHODOLOGY.md`](./aegis-bench/METHODOLOGY.md) for
+case structure and reproducibility rules.
 
 ## Contributing
 
-We're not accepting contributions until the public release in September 2026.
-After launch, see [CONTRIBUTING.md](./CONTRIBUTING.md) for how to help.
-
-If you'd like to be a **Founding Architect** (first 100 contributors after
-the public release), star this repo and watch for the launch announcement.
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
-Aegis is released under the [Apache License 2.0](./LICENSE). The license
-applies to all repository contents from this commit forward.
+[Apache License 2.0](./LICENSE).
 
-## About
+## Maintainer
 
-Aegis is the open infrastructure layer of [Andraste Labs](https://andrastelabs.com) —
-a lab building tools for the era of weighed code. Team-AI is the first
-product built on top.
-
-- 🌐 [andrastelabs.com](https://andrastelabs.com)
-- 🛡️ [aegis.andrastelabs.com](https://aegis.andrastelabs.com)
-- ✉️ [github@andrastelabs.com](mailto:github@andrastelabs.com)
-
----
-
-*Andraste Labs · İstanbul · Delaware C-Corp + TR subsidiary*
+Aegis is maintained by [Andraste Labs](https://andrastelabs.com).
+Contact: [github@andrastelabs.com](mailto:github@andrastelabs.com).
