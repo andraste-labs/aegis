@@ -45,8 +45,10 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Notes
 
-- Cases 16, 17, 18, 19 carry `llm_calibration: pending` markers in
-  their `expected.json` — the deterministic portions are verified;
-  final LLM-judge wording will be captured against a pinned model.
+- Cases 16, 17, 18, 19 have been calibrated end-to-end against
+  `claude-opus-4-7`. Each `expected.json` records the per-dimension
+  scores and override behavior from that run.
+- `tools/calibrate_llm_cases.py` re-runs the calibration against the
+  current model. `.env` (git-ignored) supplies the API key.
 
 [Unreleased]: https://github.com/andraste-labs/aegis/commits/main

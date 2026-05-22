@@ -2,13 +2,7 @@
 
 **Stack:** static_html
 **Layer:** `feature_coverage` (hybrid; deterministic override expected)
-**Expected verdict:** FAIL (`override_fired = true`)
-
-> `llm_calibration: pending`. Stage 1 (deterministic keyword scan) is
-> independently verified — the markers `[toggle, light, dark]` derived
-> from the "light/dark mode toggle" feature do not appear in any input
-> file. The LLM-judge + override behavior in Stage 2 will be captured
-> in a follow-up calibration pass.
+**Expected verdict:** FAIL (`design_fidelity` + `feature_coverage` both fail)
 
 ## Input
 

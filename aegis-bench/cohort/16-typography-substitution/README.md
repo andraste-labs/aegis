@@ -4,10 +4,6 @@
 **Layer:** `design_fidelity` (hybrid — LLM judge + deterministic override)
 **Expected verdict:** FAIL (override fires)
 
-> `llm_calibration: pending`. The deterministic override portion is
-> independently verifiable (font search in input/styles.css). The LLM
-> verdict wording will be captured in a follow-up calibration pass.
-
 ## Input
 
 An editorial blog landing page. `brief.json` requires Lora for

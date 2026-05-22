@@ -4,39 +4,19 @@
   "failed_layer": "design_fidelity",
   "failed_stack": "static_html",
   "deterministic_override_expected": true,
-  "llm_calibration": "pending",
-  "calibration_note": "design_fidelity verdict is the DOCUMENTED expected output given the prompt, brief, and deterministic override logic. Final score capture against claude-opus-4-7 runs before public launch. The override portion (font check) is deterministic and verified independently — see `deterministic_check_findings` below.",
-  "deterministic_check_findings": {
-    "palette": {
-      "required_hex": ["#1F3D2E", "#3A5C45", "#B68A3E", "#F4F1EA", "#1A1A1A"],
-      "found_hex": ["#1F3D2E", "#3A5C45", "#B68A3E", "#F4F1EA", "#1A1A1A"],
-      "verdict": "all required palette hexes appear in styles.css — palette dimension does NOT fire override"
+  "calibration": {
+    "model": "claude-opus-4-7",
+    "captured_on": "2026-05-21",
+    "summary": "Design fidelity forced-failed by deterministic evidence override",
+    "overall_score": 7,
+    "dimensions": {
+      "palette": 9,
+      "philosophy_capped_to": 4,
+      "density_motion": 7,
+      "tone_microcopy": 9
     },
-    "fonts": {
-      "required_fonts": ["Lora", "Inter"],
-      "found_fonts": [],
-      "verdict": "BOTH required fonts absent from code — philosophy dimension capped at 4/10"
-    },
-    "philosophy_forbidden_patterns": {
-      "philosophy_id": "editorial",
-      "checked": "editorial is not in the forbidden-pattern registry",
-      "verdict": "no philosophy override on this axis"
-    }
-  },
-  "expected_llm_verdict_before_override": {
-    "estimated_overall": "6-8 / 10 — page reads as clean, palette is honored, layout is calm. LLM would likely score philosophy 7+ for the considered tone.",
-    "rationale": "without typography evidence, the LLM defaults to scoring overall composition. The page DOES feel clean and considered — LLM rubber-stamps when typography is missing because reading text on screen doesn't surface 'wrong font' as starkly as 'wrong color'."
-  },
-  "expected_verdict_after_override": {
-    "philosophy": "4/10 — deterministic OVERRIDE fired (Lora + Inter both missing)",
     "forced_fail": true,
-    "missing_field_prefix": "DETERMINISTIC OVERRIDE: philosophy ?->4 (required font(s) Lora, Inter NOT FOUND in code.)"
+    "override_reason": "required font(s) Lora, Inter NOT FOUND in code"
   },
-  "rationale": "The brief's voice IS its typography — Lora serif headings, Inter sans body. The generated code uses the right palette (every required hex appears in styles.css) so the palette dimension is left alone. But the CSS specifies `font-family: system-ui, sans-serif` everywhere; neither `Lora` nor `Inter` appears in any file (no @import, no <link>, no font-family reference). The LLM judge — looking at a clean-laid-out page with the right colors — tends to score philosophy 7-9 with comments like 'considered, calm layout'. The deterministic font check sees ZERO matches for both required fonts and CAPS philosophy at 4/10. `forced_fail` trumps numeric thresholds, so the result is FAIL regardless of overall score.",
-  "baseline_comparison": {
-    "pure_LLM_judge": "Tends to PASS (7-8/10) — visual composition is clean, palette is right, LLM doesn't reliably notice missing fonts when reading rendered HTML/CSS in text.",
-    "stylelint": "PARTIAL — has rules for font-family declarations, but no preset compares declarations against a brief.",
-    "manual_design_review": "Catches immediately — a designer opens the page and instantly knows it's the wrong typography. But humans don't run on every PR.",
-    "Aegis (LLM + override)": "FAIL via deterministic font search. The LLM cannot rubber-stamp; the override has final word."
-  }
+  "rationale": "The brief specifies Lora for headings and Inter for body. The generated styles.css uses `font-family: system-ui, sans-serif` everywhere; neither font name appears anywhere in the input. The LLM judge scores the layout favorably (palette 9, density 7, tone 9) and gives philosophy 5 since typography is the only visible miss. The deterministic font search then fires: both required fonts are absent, philosophy is capped to 4, `forced_fail` is set. The overall score gets recomputed to 7 from the capped dimensions, but `forced_fail` trumps the numeric threshold and the layer reports FAIL."
 }

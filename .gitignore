@@ -45,6 +45,7 @@ desktop.ini
 # Aegis runtime
 aegis-bench/results/*.json
 !aegis-bench/results/.gitkeep
+aegis-bench/cohort/**/actual_llm.json
 aegis-bench/work/
 *.log
 

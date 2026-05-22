@@ -4,34 +4,28 @@
   "failed_layer": "feature_coverage",
   "failed_stack": "static_html",
   "deterministic_override_expected": false,
-  "llm_calibration": "pending",
-  "calibration_note": "feature_coverage's Stage-1 deterministic keyword scan does the discriminating work here. Stage 2 (LLM) is expected to AGREE — both detect the missing CSV export. The final numeric details (LLM 'partial' vs 'missing', overall stats) are pending calibration.",
-  "deterministic_check_findings": {
-    "features_audited": [
-      "user table with name, email, signup date columns",
-      "sort by clicking column headers",
-      "export current view to CSV via a download button"
-    ],
-    "stage1_markers_found": {
-      "user table with name, email, signup date columns": ["signup", "columns"],
-      "sort by clicking column headers": ["sort", "clicking", "headers"]
+  "calibration": {
+    "model": "claude-opus-4-7",
+    "captured_on": "2026-05-21",
+    "design_fidelity": {
+      "verdict": "passed",
+      "overall_score": 6,
+      "dimensions": {
+        "palette": 6,
+        "philosophy": 8,
+        "density_motion": 7,
+        "tone_microcopy": 7
+      },
+      "note": "Design layer passes — the case targets the feature_coverage layer specifically."
     },
-    "stage1_missing": {
-      "export current view to CSV via a download button": ["export", "download"]
-    },
-    "verdict": "Stage 1 deterministic scan flags CSV-export feature as missing. The marker words 'export' and 'download' do NOT appear in any source file. Stage 2 (LLM) is expected to AGREE — neither side rubber-stamps a present verdict."
+    "feature_coverage": {
+      "verdict": "failed",
+      "missing_feature": "export current view to CSV via a download button",
+      "stage1_markers_absent": ["export", "download"],
+      "llm_status": "missing",
+      "llm_overrides": 0,
+      "note": "Both halves of the hybrid agree the feature is absent; no rubber-stamp override needed."
+    }
   },
-  "expected_verdict": {
-    "total": 3,
-    "present_count": 2,
-    "missing_feature": "export current view to CSV via a download button",
-    "agreement": "Stage 1 (markers absent) + Stage 2 (LLM confirms no export UI) → CONFIDENT FAIL",
-    "fallback_path_if_LLM_fails": "Deterministic-only verdict still flags the same feature; conservative path is identical."
-  },
-  "rationale": "The brief lists CSV export as feature #3. The generated dashboard renders the user table cleanly, supports column-header sorting (`addEventListener('click', ...)`, sort key/direction state), but contains zero references to CSV, export, download, Blob, or `text/csv`. `feature_coverage` Stage 1 derives keyword markers from the feature label, scans the code blob (HTML + JS + CSS, lowercased), and flags features whose markers are entirely absent. For 'export current view to CSV via a download button', the markers `export` and `download` survive stopword strip — neither appears. Stage 1 declares the feature missing. Stage 2 (LLM judge) is expected to read the brief and the code and produce the same verdict; the cross-validation then confirms FAIL with both signals agreeing. This is the cleanest feature-coverage case in the bench: both halves of the hybrid layer point the same direction.",
-  "baseline_comparison": {
-    "pure_LLM_judge": "USUALLY FAIL — but can be tricked: if the table header text mentions 'export' or a tooltip says 'export to CSV available soon', a pure LLM might score 'present'. Stage 1's strict keyword scan blocks that path.",
-    "manual_QA": "FAIL — a user clicks around and finds no export button.",
-    "Aegis (hybrid)": "FAIL — both Stage 1 and Stage 2 agree the feature is absent."
-  }
+  "rationale": "The brief lists CSV export as feature #3. The generated app implements the user table and the column sorting cleanly but contains zero references to `export`, `download`, `csv`, `Blob`, or `text/csv`. Stage 1 of `feature_coverage` derives keyword markers [`export`, `download`, …] from the feature label and finds zero hits in the code blob. The LLM judge agrees — the response says `status: missing` for the CSV feature. Cross-validation confirms FAIL with both signals agreeing; `llm_overrides` is 0 because no rubber-stamp prevention was needed."
 }

@@ -4,11 +4,11 @@
 **Layer:** `design_fidelity` (hybrid — LLM-judge dependent)
 **Expected verdict:** FAIL (LLM-driven; no deterministic override)
 
-> `llm_calibration: pending`. This case has no deterministic override
-> path — the palette is correct, the required fonts (`Playfair Display`
-> + `Source Sans 3`) are imported and used, and the `editorial`
-> philosophy has no forbidden-pattern entries. The LLM judge is the
-> only check that fires; calibration captured in a follow-up pass.
+> This case has no deterministic override path — the palette is
+> correct, the required fonts (`Playfair Display` + `Source Sans 3`)
+> are imported and used, and the `editorial` philosophy has no
+> forbidden-pattern entries. The LLM judge is the only check that
+> fires; the calibrated verdict is captured in `expected.json`.
 
 ## Input
 

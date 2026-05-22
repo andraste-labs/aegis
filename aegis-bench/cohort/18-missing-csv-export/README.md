@@ -4,10 +4,6 @@
 **Layer:** `feature_coverage` (hybrid — Stage 1 keyword scan + LLM judge)
 **Expected verdict:** FAIL
 
-> `llm_calibration: pending`. Stage 1 (deterministic keyword scan) is
-> independently verified for this case. The LLM-judge wording in
-> Stage 2 will be captured in a follow-up calibration pass.
-
 ## Input
 
 A user-list dashboard. `brief.json` lists three features:

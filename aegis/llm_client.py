@@ -100,12 +100,19 @@ class AnthropicClient:
         max_tokens: int = 4096,
         temperature: float = 0.0,
     ) -> str:
-        response = await self._client.messages.create(
-            model=self._model,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            messages=[{"role": "user", "content": prompt}],
-        )
+        # Some newer Claude models (e.g. Opus 4.7) reject the
+        # ``temperature`` parameter outright. Pass it only when the
+        # caller explicitly overrode the default; otherwise let the
+        # API choose its own.
+        kwargs: dict[str, object] = {
+            "model": self._model,
+            "max_tokens": max_tokens,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        if temperature != 0.0:
+            kwargs["temperature"] = temperature
+
+        response = await self._client.messages.create(**kwargs)
         # response.content is a list of content blocks; we take the
         # text from the first block (judgment prompts return a single
         # text block by convention).

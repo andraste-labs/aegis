@@ -1,33 +1,35 @@
 {
   "version": 1,
   "passed": false,
-  "failed_layer": "feature_coverage",
+  "failed_layer": "design_fidelity",
   "failed_stack": "static_html",
-  "deterministic_override_expected": true,
-  "llm_calibration": "pending",
-  "calibration_note": "Stage 1 deterministic keyword scan is INDEPENDENTLY VERIFIED for this case (see deterministic_check_findings). The LLM-judge override path is documented as expected behavior; final calibration against claude-opus-4-7 captures the precise wording before public launch.",
-  "deterministic_check_findings": {
-    "feature": "light/dark mode toggle",
-    "markers_derived": ["toggle", "light", "dark"],
-    "markers_found_in_code": [],
-    "verdict": "ALL THREE markers absent from input/* — Stage 1 deterministic scan flags the feature as MISSING. Note: a second feature mined from brief.notes ('The dark-mode toggle is a primary feature, not a nice-to-have') is also flagged with markers [primary, toggle, dark]; this is correct behavior — Stage 1 doesn't differentiate between explicit features and brief-mined features."
+  "deterministic_override_expected": false,
+  "calibration": {
+    "model": "claude-opus-4-7",
+    "captured_on": "2026-05-21",
+    "design_fidelity": {
+      "verdict": "failed",
+      "overall_score": 4,
+      "dimensions": {
+        "palette": 2,
+        "philosophy": 8,
+        "density_motion": 5,
+        "tone_microcopy": 4
+      },
+      "weak_dimension": "palette (2/10)",
+      "note": "Brief specifies a LIGHT palette (#FFFFFF bg, #111827 fg, #3B82F6 primary). The code ships a charcoal-by-default palette. The LLM caps palette at 2/10 for the inverted scheme, dropping overall below the pass threshold."
+    },
+    "feature_coverage": {
+      "verdict": "failed",
+      "missing_features": [
+        "light/dark mode toggle",
+        "The dark-mode toggle is a primary feature, not a nice-to-have"
+      ],
+      "stage1_markers_absent": ["toggle", "light", "dark"],
+      "llm_status": "missing",
+      "llm_overrides": 0,
+      "note": "Both Stage 1 and the LLM judge identify the missing toggle. The LLM picks up the JS comment that admits the implementation was skipped, so no rubber-stamp override is needed for the case to FAIL."
+    }
   },
-  "expected_llm_behavior_and_override": {
-    "without_override": "LLM looking at the charcoal page might score 'light/dark mode toggle' as 'present' with evidence like 'dark theme styling visible via CSS variables'. The page reads as dark-themed; a pure LLM judge could rubber-stamp.",
-    "with_override": "Stage 1 already flagged this feature missing (no markers in code). The cross-validation step then requires the LLM's evidence to point at a CONCRETE code symbol the scanner can locate. 'dark theme styling visible via CSS variables' is prose evidence — no id, no class name, no function. The rescue path fails. Feature is demoted to missing. `llm_overrides` counter increments. `override_fired = True`.",
-    "final_verdict": "FAIL with override_fired=true"
-  },
-  "expected_verdict": {
-    "total": 4,
-    "present_count": "2 (write + render features)",
-    "missing": "light/dark mode toggle + brief-mined duplicate",
-    "llm_overrides_min": 1,
-    "override_fired": true
-  },
-  "rationale": "The brief asks for a light/dark mode toggle in the header. The generated code ships a charcoal-by-default theme via CSS variables, with no toggle button in the HTML, no switching handler in the JS, and no occurrence of the words 'light', 'dark', or 'toggle' anywhere in the input. `feature_coverage` Stage 1 (deterministic keyword scan) flags the feature missing — markers absent. Stage 2 (LLM judge) is the case-defining axis: the LLM sees a dark-themed page and may say 'present'. The cross-validation step demands concrete evidence (an id, class, function name) from the LLM. Prose like 'dark theme styling visible' fails the rescue path; the feature is demoted. The bench narrative here is: 'LLM rubber-stamp + deterministic-floor override = honest verdict'. Case 18 demonstrated both halves agreeing; case 19 demonstrates the override firing when they disagree.",
-  "baseline_comparison": {
-    "pure_LLM_judge": "AT RISK of rubber-stamp — dark styling looks like 'dark mode supported'. The toggle's absence requires the LLM to actually look for a swap UI, which it can miss.",
-    "manual_QA": "FAIL — the user opens the page, sees dark, looks for a toggle, doesn't find one, files a bug.",
-    "Aegis (hybrid)": "FAIL with override_fired=true — Stage 1 markers absent locks in the verdict regardless of whether the LLM was fooled."
-  }
+  "rationale": "Two layers fail. `design_fidelity` reports overall 4/10 with palette weak at 2/10 — the brief asks for a light palette but the code ships dark by default. `feature_coverage` reports the `light/dark mode toggle` feature missing: Stage 1 finds no occurrences of `toggle`, `light`, or `dark` in the code blob; the LLM independently identifies the absent toggle UI (citing the JS comment that admits 'no theme button was added'). `llm_overrides` is 0 — the rubber-stamp guard is in place but did not need to fire because the model correctly identified the gap."
 }
