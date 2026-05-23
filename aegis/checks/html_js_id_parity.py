@@ -88,6 +88,54 @@ def collect_js_id_refs(js_files: list[Path]) -> set[str]:
     return refs
 
 
+def collect_js_id_refs_with_provenance(
+    root: Path, js_files: list[Path]
+) -> dict[str, set[str]]:
+    """Return a mapping ``{id: {rel_path, ...}}``.
+
+    Differs from ``collect_js_id_refs`` only in that it records WHICH
+    JS file referenced each id. Used by failure reporting + dispatch
+    so a violation in ``tests/smoke.test.js`` routes to qa_engineer
+    while one in ``app.js`` routes to frontend_developer.
+    """
+    out: dict[str, set[str]] = {}
+    for j in js_files:
+        try:
+            src = j.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        try:
+            rel = j.relative_to(root).as_posix()
+        except ValueError:
+            rel = j.name
+        local = set(_GETBYID_RE.findall(src)) | set(_QSEL_ID_RE.findall(src))
+        for rid in local:
+            out.setdefault(rid, set()).add(rel)
+    return out
+
+
+_TEST_DIR_NAMES = {"tests", "test", "__tests__", "spec", "__test__"}
+_TEST_FILE_SUFFIXES = (
+    ".test.js", ".test.mjs", ".test.cjs",
+    ".test.jsx", ".test.tsx",
+    ".spec.js", ".spec.mjs", ".spec.cjs",
+    ".spec.jsx", ".spec.tsx",
+)
+
+
+def looks_like_test_file(rel_path: str) -> bool:
+    """True for JS files written by a test/QA tooling convention.
+
+    Recognizes ``tests/``, ``__tests__/``, ``spec/`` directories and
+    ``*.test.*`` / ``*.spec.*`` suffixes (Jest, Mocha, Cypress).
+    """
+    parts = rel_path.replace("\\", "/").split("/")
+    if any(p in _TEST_DIR_NAMES for p in parts):
+        return True
+    name = parts[-1]
+    return any(name.endswith(s) for s in _TEST_FILE_SUFFIXES)
+
+
 class HtmlJsIdParityCheck(CheckLayer):
     """Layer #17 — JS id references must exist in some HTML file."""
 
@@ -112,13 +160,28 @@ class HtmlJsIdParityCheck(CheckLayer):
             return self._skip("No HTML+JS pair in input")
 
         html_ids = collect_html_ids(html_files)
-        js_refs = collect_js_id_refs(js_files)
+        js_id_to_files = collect_js_id_refs_with_provenance(root, js_files)
+        js_refs = set(js_id_to_files.keys())
 
         if not js_refs:
             return self._skip("JS uses no #id selectors (class/tag-based)")
 
         missing = sorted(js_refs - html_ids)
         if missing:
+            # Bucket each missing id by the file that referenced it.
+            # Consumers (e.g. the Team-AI rework dispatcher) use these
+            # buckets to route fix-it work to the agent who actually
+            # owns the offending file.
+            violating_test_files: dict[str, list[str]] = {}
+            violating_app_files: dict[str, list[str]] = {}
+            for mid in missing:
+                for fpath in sorted(js_id_to_files.get(mid, set())):
+                    bucket = (
+                        violating_test_files
+                        if looks_like_test_file(fpath)
+                        else violating_app_files
+                    )
+                    bucket.setdefault(fpath, []).append(mid)
             return self._result(
                 Verdict.failed,
                 summary=(
@@ -132,6 +195,12 @@ class HtmlJsIdParityCheck(CheckLayer):
                     "html_ids_sample": sorted(html_ids)[:25],
                     "html_files": len(html_files),
                     "js_files": len(js_files),
+                    "violating_app_files": {
+                        k: sorted(set(v)) for k, v in violating_app_files.items()
+                    },
+                    "violating_test_files": {
+                        k: sorted(set(v)) for k, v in violating_test_files.items()
+                    },
                 },
             )
 
@@ -154,4 +223,6 @@ __all__ = [
     "HtmlJsIdParityCheck",
     "collect_html_ids",
     "collect_js_id_refs",
+    "collect_js_id_refs_with_provenance",
+    "looks_like_test_file",
 ]
