@@ -24,6 +24,7 @@ from aegis.design_dna import DesignDNA
 _CODE_EXTENSIONS_DEFAULT: tuple[str, ...] = (
     ".html", ".htm", ".js", ".mjs", ".cjs",
     ".jsx", ".tsx", ".ts", ".css",
+    ".py",
 )
 
 

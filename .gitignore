@@ -43,10 +43,14 @@ Thumbs.db
 desktop.ini
 
 # Aegis runtime
-aegis-bench/results/*.json
-!aegis-bench/results/.gitkeep
+# Bench results ARE committed — they're the public record of every
+# cohort run. Only transient local artefacts are ignored.
 aegis-bench/cohort/**/actual_llm.json
+aegis-bench/cohort/**/package-lock.json
+aegis-bench/cohort/**/node_modules/
 aegis-bench/work/
+results-nollm.json
+results-llm.json
 *.log
 
 # Cloudflare Pages / Workers (for the landing site)
