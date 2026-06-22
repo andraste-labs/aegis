@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1A1F1B" />
+
+    <title>Aegis · by Andraste Labs</title>
+    <meta name="description" content="A deterministic validator for AI-generated code. Apache 2.0 launch planned: September 2026. By Andraste Labs." />
+    <meta name="author" content="Andraste Labs" />
+    <link rel="canonical" href="https://aegis.andrastelabs.com/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Andraste Labs" />
+    <meta property="og:title" content="Aegis · by Andraste Labs" />
+    <meta property="og:description" content="A deterministic validator for AI-generated code. Apache 2.0 launch planned: September 2026." />
+    <meta property="og:url" content="https://aegis.andrastelabs.com/" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Aegis · by Andraste Labs" />
+    <meta name="twitter:description" content="A deterministic validator for AI-generated code. Apache 2.0 launch planned: September 2026." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+    <style>
+        :root {
+            --ink: #1F2421;
+            --ink-muted: #5E6863;
+            --accent: #476B57;
+            --accent-strong: #324F40;
+            --canvas: #E9ECE6;
+            --deep: #1A1F1B;
+            --border: rgba(233, 236, 230, 0.12);
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--deep);
+            color: var(--canvas);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+        a { color: var(--accent); text-decoration: none; transition: color 0.15s; }
+        a:hover { color: #6FA289; }
+
+        .grove-bg {
+            position: absolute;
+            inset: 0;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        header {
+            position: relative;
+            z-index: 2;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: var(--canvas);
+        }
+        .brand svg { color: var(--accent); }
+        .header-link {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--ink-muted);
+        }
+        .header-link:hover { color: var(--accent); }
+
+        main {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 4rem 2rem;
+        }
+        .container {
+            max-width: 56rem;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: var(--accent);
+            margin-bottom: 2rem;
+        }
+        h1 {
+            font-family: 'Inter Display', 'Inter', sans-serif;
+            font-size: clamp(2.5rem, 5vw + 1rem, 5rem);
+            font-weight: 600;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            margin: 0 0 1.5rem 0;
+            color: var(--canvas);
+        }
+        .lede {
+            font-size: clamp(1.125rem, 1.5vw + 0.5rem, 1.5rem);
+            line-height: 1.5;
+            color: rgba(233, 236, 230, 0.8);
+            max-width: 40rem;
+            margin: 0 0 3rem 0;
+        }
+        .lede strong { color: var(--canvas); font-weight: 600; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        @media (max-width: 640px) {
+            .grid { grid-template-columns: 1fr; gap: 1.5rem; }
+        }
+        .grid-item {
+            border-top: 1px solid rgba(71, 107, 87, 0.5);
+            padding-top: 1.25rem;
+        }
+        .grid-item h3 {
+            font-family: 'Inter Display', 'Inter', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--canvas);
+            margin: 0 0 0.75rem 0;
+        }
+        .grid-item p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: rgba(233, 236, 230, 0.65);
+            margin: 0;
+        }
+        .cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            background: var(--accent);
+            color: var(--canvas);
+            font-weight: 500;
+            font-size: 0.95rem;
+            border-radius: 2px;
+            transition: background 0.15s;
+        }
+        .cta:hover {
+            background: var(--accent-strong);
+            color: var(--canvas);
+        }
+        .cta-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            border: 1px solid rgba(233, 236, 230, 0.3);
+            color: var(--canvas);
+            font-weight: 500;
+            font-size: 0.95rem;
+            border-radius: 2px;
+            transition: border-color 0.15s, color 0.15s;
+            margin-left: 0.75rem;
+        }
+        .cta-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        footer {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--ink-muted);
+            text-align: center;
+        }
+        footer a { color: var(--ink-muted); }
+        footer a:hover { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <!-- Open Grove background pattern -->
+    <svg class="grove-bg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <g stroke="#476B57" stroke-width="1.5" fill="none">
+            <g transform="translate(150,0)"><path d="M0 800 V 320"/><path d="M180 800 V 320"/><path d="M0 320 Q 90 240 180 320"/></g>
+            <g transform="translate(550,0)"><path d="M0 800 V 280"/><path d="M220 800 V 280"/><path d="M0 280 Q 110 200 220 280"/></g>
+            <g transform="translate(960,0)"><path d="M0 800 V 340"/><path d="M180 800 V 340"/><path d="M0 340 Q 90 260 180 340"/></g>
+        </g>
+    </svg>
+
+    <header>
+        <a href="https://andrastelabs.com" class="brand">
+            <svg width="24" height="24" viewBox="0 0 100 100" aria-hidden="true">
+                <g stroke="currentColor" stroke-width="6" stroke-linecap="round" fill="none">
+                    <line x1="35" y1="75" x2="35" y2="40"/>
+                    <line x1="65" y1="75" x2="65" y2="40"/>
+                    <path d="M35 40 Q 50 25 65 40"/>
+                </g>
+            </svg>
+            <span>aegis</span>
+        </a>
+        <a href="https://andrastelabs.com" class="header-link">by Andraste Labs ↗</a>
+    </header>
+
+    <main>
+        <div class="container">
+            <p class="eyebrow">Aegis · Open source · September 2026</p>
+
+            <h1>A deterministic validator for AI-generated code.</h1>
+
+            <p class="lede">
+                <strong>Reproducible. Multi-stack. Quiet enough to run in your pipeline.</strong>
+                Aegis runs a layered check pipeline against generated code and reports
+                whether it's shippable — most layers deterministic, a couple LLM-judged
+                only where they earn their place.
+            </p>
+
+            <div class="grid">
+                <div class="grid-item">
+                    <h3>What it does</h3>
+                    <p>Multi-layer pipeline: AST checks, regex, build, test runners, then an LLM-judged design-fidelity pass with deterministic override. Output: ship / honest FAILED.</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Stacks today</h3>
+                    <p>Python, Node.js (TypeScript / JavaScript), and static HTML. Go and Rust are on the roadmap.</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Reproducible</h3>
+                    <p>Public benchmark cohort (<code>aegis-bench</code>) — any machine, same cases, same results. The output is the evidence.</p>
+                </div>
+                <div class="grid-item">
+                    <h3>Status</h3>
+                    <p>Private development today. Public Apache 2.0 launch planned for September 2026. Watch the repo to be notified.</p>
+                </div>
+            </div>
+
+            <a href="https://github.com/andraste-labs/aegis" class="cta">
+                Watch on GitHub
+                <span aria-hidden="true">↗</span>
+            </a>
+            <a href="https://andrastelabs.com" class="cta-secondary">
+                About Andraste Labs
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        Aegis · by <a href="https://andrastelabs.com">Andraste Labs</a> · İstanbul · Delaware C-Corp + TR subsidiary
+    </footer>
+</body>
+</html>
