@@ -33,6 +33,7 @@ _SKIP_DIRS: frozenset[str] = frozenset(
         "site-packages",
         "dist",
         "build",
+        "coverage",
     ]
 )
 

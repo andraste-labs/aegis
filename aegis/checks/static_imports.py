@@ -101,6 +101,20 @@ class TsAlias:
     of the ``paths`` list, with ``baseUrl`` applied and ``/*`` stripped."""
 
 
+# Directories that hold design artifacts (wireframes / mockups). Their HTML
+# ships intentionally-broken `<link>`/`<script>` refs to a design-system that
+# is not on disk, so static-import resolution would false-fail on them. They
+# are not product code and must be skipped.
+_DESIGN_ARTIFACT_DIRS: frozenset[str] = frozenset(
+    ["design", "designs", "wireframe", "wireframes", "mockup", "mockups"]
+)
+# Also skip build output — scanning compiled/minified HTML in dist/build/coverage
+# produces false static-import failures.
+_STATIC_SKIP_DIRS: frozenset[str] = frozenset(
+    ["node_modules", "dist", "build", "coverage"]
+) | _DESIGN_ARTIFACT_DIRS
+
+
 def _is_source(root: Path, p: Path) -> bool:
     if not p.is_file() or p.suffix not in _SOURCE_EXTS:
         return False
@@ -108,7 +122,10 @@ def _is_source(root: Path, p: Path) -> bool:
         rel_parts = p.relative_to(root).parts
     except ValueError:
         return False
-    return not any(part.startswith(".") or part == "node_modules" for part in rel_parts)
+    return not any(
+        part.startswith(".") or part.lower() in _STATIC_SKIP_DIRS
+        for part in rel_parts
+    )
 
 
 def load_ts_aliases(root: Path) -> tuple[list[TsAlias], Path]:

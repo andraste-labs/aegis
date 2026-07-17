@@ -7,6 +7,33 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- **node_deps_completeness / static_imports:** `@/…` and `@x` import
+  specifiers are treated as local path aliases (vite/tsconfig `paths`), not
+  npm scoped packages, so a project using the `@/` alias no longer false-fails.
+- **TS/JS export scraping:** `export type { A, B } from './x'` re-export lists
+  are now recognized as exports — a consumer importing those names is no longer
+  flagged (named-import consistency) and a case mismatch on them is no longer
+  missed (import-case consistency).
+- **react_prop_consistency:** props declared after an inline-object-typed prop
+  (`config: { … }; onSubmit`) are no longer dropped (balanced-brace body scan);
+  components with an index signature (`[key: string]: T`) are treated as
+  extensible; identifiers inside `{expr}` JSX attribute values are no longer
+  captured as attribute names.
+- **python_imports:** a namespace-only local folder (e.g. an Alembic
+  `alembic/` migrations dir with no `__init__.py`) that shadows a third-party
+  package of the same name is no longer reported as an unresolved local import.
+- **static_imports:** design-artifact directories (`design/`, `wireframes/`,
+  `mockups/`) are skipped — their intentionally-broken references are not
+  product code.
+- **All static walkers:** `coverage/` (and, for the CSS walker, `dist/` and
+  `build/`) are excluded from file discovery, so compiled/instrumented output
+  no longer produces false results.
+- **npm_install:** added a final `npm install --ignore-scripts
+  --legacy-peer-deps` recovery tier, so an npm 7+ peer-dependency conflict that
+  older npm tolerated no longer fails an otherwise-installable project.
+
 ### Added
 
 - Initial package layout (`aegis/`, `aegis_cli/`) and `pyproject.toml`

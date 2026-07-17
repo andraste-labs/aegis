@@ -45,15 +45,22 @@ _BUILTIN_ATTRS: frozenset[str] = frozenset([
 ])
 
 
-# `interface XProps { … }` or `type XProps = { … }`.
-_PROPS_DECL_RE = re.compile(
+# Header only: `interface XProps {` or `type XProps = {`. The body is then
+# extracted with a balanced-brace scan. A `\{([^}]*)\}` capture stops at the
+# FIRST `}`, so an inline-object-typed prop (`config: { title: string }; onSubmit`)
+# truncates the body and drops every prop after it — false-failing a correct file.
+_PROPS_HEADER_RE = re.compile(
     r"""(?:^|\s)
         (?:export\s+)?
-        (?:interface\s+(\w+Props)\s*\{([^}]*)\}
-          |type\s+(\w+Props)\s*=\s*\{([^}]*)\})
+        (?:interface\s+(\w+Props)\s*(\{)
+          |type\s+(\w+Props)\s*=\s*(\{))
     """,
-    re.MULTILINE | re.VERBOSE | re.DOTALL,
+    re.MULTILINE | re.VERBOSE,
 )
+
+# Index signature `[key: string]: T` → the component accepts arbitrary props,
+# so strict prop checking would false-positive on any extra attribute.
+_INDEX_SIG_RE = re.compile(r"\[[^\]]+\]\s*:")
 
 # `interface XProps extends …` or `type XProps = SomeOther & …`. Marks
 # the component as extensible — strict prop checks would false-positive.
@@ -78,6 +85,91 @@ _USAGE_RE = re.compile(r"<([A-Z]\w*)\b([^/>]*?)(?:/?>)", re.DOTALL)
 _ATTR_RE = re.compile(r"(?<![\w-])([\w-]+)\s*=")
 
 
+def _balanced_body(src: str, open_idx: int) -> str:
+    """Return the content between the ``{`` at ``open_idx`` and its matching
+    ``}`` (brace-depth aware, skips string/template literals). ``""`` if
+    unbalanced."""
+    depth = 0
+    quote: str | None = None
+    i = open_idx
+    start = open_idx + 1
+    n = len(src)
+    while i < n:
+        c = src[i]
+        if quote:
+            if c == "\\":
+                i += 2
+                continue
+            if c == quote:
+                quote = None
+        elif c in "'\"`":
+            quote = c
+        elif c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                return src[start:i]
+        i += 1
+    return ""
+
+
+def _strip_nested_braces(body: str) -> str:
+    """Drop nested ``{…}`` object-type bodies so their inner keys are not
+    counted as top-level props (``config: { title }`` keeps ``config``, drops
+    ``title``)."""
+    out: list[str] = []
+    depth = 0
+    for c in body:
+        if c == "{":
+            depth += 1
+            continue
+        if c == "}":
+            if depth > 0:
+                depth -= 1
+            continue
+        if depth == 0:
+            out.append(c)
+    return "".join(out)
+
+
+def _strip_jsx_expr_values(blob: str) -> str:
+    """Blank out ``{…}`` JSX expression values (brace/quote aware) so
+    identifiers inside them (e.g. ``deletingId`` in ``x={deletingId === y}``)
+    are not captured as attribute names by the naive ``name=`` regex."""
+    out: list[str] = []
+    depth = 0
+    quote: str | None = None
+    i = 0
+    n = len(blob)
+    while i < n:
+        c = blob[i]
+        if quote:
+            out.append(c if depth == 0 else " ")
+            if c == "\\" and i + 1 < n:
+                out.append(blob[i + 1] if depth == 0 else " ")
+                i += 2
+                continue
+            if c == quote:
+                quote = None
+            i += 1
+            continue
+        if c in "'\"`":
+            quote = c
+            out.append(c if depth == 0 else " ")
+        elif c == "{":
+            depth += 1
+            out.append(" ")
+        elif c == "}":
+            if depth > 0:
+                depth -= 1
+            out.append(" ")
+        else:
+            out.append(c if depth == 0 else " ")
+        i += 1
+    return "".join(out)
+
+
 def collect_component_props(sources: list[Path]) -> tuple[dict[str, set[str]], set[str]]:
     """Walk ``sources`` and return ``(component → declared props, extensible_set)``.
 
@@ -95,16 +187,19 @@ def collect_component_props(sources: list[Path]) -> tuple[dict[str, set[str]], s
         except OSError:
             continue
 
-        for m in _PROPS_DECL_RE.finditer(src):
+        for m in _PROPS_HEADER_RE.finditer(src):
             name = m.group(1) or m.group(3)
-            body = m.group(2) or m.group(4) or ""
             if not name:
                 continue
+            brace_idx = m.start(2) if m.group(2) else m.start(4)
+            body = _balanced_body(src, brace_idx)
             comp = name[: -len("Props")] if name.endswith("Props") else name
-            if "..." in body:
+            # Spread or an index signature means the component accepts extra
+            # props — strict checking would false-positive.
+            if "..." in body or _INDEX_SIG_RE.search(body):
                 extensible.add(comp)
                 continue
-            keys = set(_PROP_KEY_RE.findall(body))
+            keys = set(_PROP_KEY_RE.findall(_strip_nested_braces(body)))
             if keys:
                 component_props.setdefault(comp, set()).update(keys)
 
@@ -141,7 +236,7 @@ def find_prop_problems(
             attrs_blob = m.group(2)
             if "{..." in attrs_blob:
                 continue
-            used = set(_ATTR_RE.findall(attrs_blob))
+            used = set(_ATTR_RE.findall(_strip_jsx_expr_values(attrs_blob)))
             used -= _BUILTIN_ATTRS
             used = {a for a in used if not a.startswith(("data-", "aria-"))}
             if not used:

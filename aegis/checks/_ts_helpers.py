@@ -26,7 +26,9 @@ TS_JS_EXTENSIONS: tuple[str, ...] = (".ts", ".tsx", ".js", ".jsx", ".mjs")
 TS_RESOLVE_EXTENSIONS: tuple[str, ...] = (".ts", ".tsx", ".js", ".jsx", ".mjs")
 
 
-_SKIP_DIRS: frozenset[str] = frozenset(["node_modules", "dist", "build"])
+# `coverage` holds instrumented / report output; scanning it produces false
+# positives just like `dist`/`build`.
+_SKIP_DIRS: frozenset[str] = frozenset(["node_modules", "dist", "build", "coverage"])
 
 
 def find_ts_sources(root: Path) -> list[Path]:
@@ -102,7 +104,11 @@ def resolve_relative_spec(
 _EXPORT_DECL_RE = re.compile(
     r"""(?:^|\n)\s*export\s+(?:default\s+|\*\s+from|abstract\s+)?(?:"""
     r"""(?:async\s+)?(?:type|interface|class|function|const|let|var|enum|namespace)\s+(\w+)"""
-    r"""|\{([^}]+)\}"""
+    # `(?:type\s+)?` so `export type { A, B } from './x'` re-export lists are
+    # recognized. tsc accepts them and they are real exports; without this the
+    # names go uncollected and a consumer importing them gets false-flagged
+    # (L11) or a case mismatch goes undetected (L12).
+    r"""|(?:type\s+)?\{([^}]+)\}"""
     r""")""",
     re.MULTILINE,
 )

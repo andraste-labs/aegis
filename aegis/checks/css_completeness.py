@@ -64,14 +64,20 @@ class CssStub:
     """Byte count after stripping ``/* … */`` comments."""
 
 
+_CSS_SKIP_DIRS: frozenset[str] = frozenset(["node_modules", "dist", "build", "coverage"])
+
+
 def _find_css_files(scan_root: Path) -> list[Path]:
-    """Return all .css files under ``scan_root``, skipping hidden + node_modules."""
+    """Return all .css files under ``scan_root``, skipping hidden dirs and
+    build output. Scanning ``dist``/``build`` would judge minified/compiled CSS
+    and ``coverage`` would judge report CSS — both are false-positive sources.
+    """
     out: list[Path] = []
     for p in scan_root.rglob("*.css"):
         if not p.is_file():
             continue
         rel_parts = p.relative_to(scan_root).parts
-        if any(part.startswith(".") or part == "node_modules" for part in rel_parts):
+        if any(part.startswith(".") or part in _CSS_SKIP_DIRS for part in rel_parts):
             continue
         out.append(p)
     return out

@@ -40,8 +40,9 @@ NODE_SOURCE_EXTENSIONS: tuple[str, ...] = (
 )
 
 
-# Directories we never descend into.
-_SKIP_DIRS: frozenset[str] = frozenset(["node_modules", "dist", "build"])
+# Directories we never descend into. `coverage` holds instrumented / report
+# output; scanning it produces false positives just like `dist`/`build`.
+_SKIP_DIRS: frozenset[str] = frozenset(["node_modules", "dist", "build", "coverage"])
 
 
 def is_node_source(root: Path, path: Path) -> bool:
@@ -147,6 +148,13 @@ def package_root_of(spec: str) -> str:
     if spec_clean.startswith("node:"):
         return ""
     if spec_clean.startswith("@"):
+        # `@/x` (empty scope) and `@x` (no separator) are LOCAL path aliases
+        # from a vite/tsconfig `paths` mapping, NOT npm scoped packages. A real
+        # scoped package is always `@scope/name` with a non-empty scope. Without
+        # this guard every `@/components` import is flagged as an undeclared
+        # dependency, which false-fails essentially any Vite/Next/CRA project.
+        if spec_clean.startswith("@/") or "/" not in spec_clean:
+            return ""
         parts = spec_clean.split("/", 2)
         return "/".join(parts[:2]) if len(parts) >= 2 else parts[0]
     return spec_clean.split("/", 1)[0]

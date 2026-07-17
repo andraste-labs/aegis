@@ -61,79 +61,68 @@ class NpmInstallCheck(CheckLayer):
         timeout = ctx.timeout_per_command
 
         has_lock = (root / "package-lock.json").exists()
-        first_argv = (
-            [npm, "ci", "--ignore-scripts"]
-            if has_lock
-            else [npm, "install", "--ignore-scripts"]
-        )
+        # Recovery tiers, tried in order until one exits 0. `--ignore-scripts`
+        # on EVERY tier (the supply-chain guard is non-negotiable). The final
+        # `--legacy-peer-deps` tier is the last resort: npm 7+ hard-fails on
+        # peer-dependency conflicts that older npm only warned about, and
+        # agent-generated `package.json` files hit this constantly — without it
+        # a resolvable project false-fails install.
+        tiers: list[list[str]] = []
+        if has_lock:
+            tiers.append([npm, "ci", "--ignore-scripts"])
+        tiers.append([npm, "install", "--ignore-scripts"])
+        tiers.append([npm, "install", "--ignore-scripts", "--legacy-peer-deps"])
 
-        try:
-            primary = await run_cmd(first_argv, cwd=root, timeout=timeout, env=env)
-        except FileNotFoundError:
-            return self._result(
-                Verdict.failed,
-                summary="`npm` not on PATH — cannot run install",
-                start_time=start,
-                details={"error": "npm_not_found"},
-            )
-
-        if primary.returncode == 0 and not primary.timed_out:
-            return self._result(
-                Verdict.passed,
-                summary=f"`{' '.join(first_argv[1:])}` succeeded",
-                start_time=start,
-                details={
-                    "command": first_argv,
-                    "duration_seconds": primary.duration_seconds,
-                    "stdout_tail": primary.stdout.strip()[-500:],
-                },
-            )
-
-        # If we tried `npm ci` and it failed for any reason other than
-        # timeout, fall back to `npm install` (the lockfile may be stale
-        # in agent-generated projects).
-        fallback_run = None
-        if has_lock and not primary.timed_out:
+        last = None
+        for i, argv in enumerate(tiers):
             try:
-                fallback_run = await run_cmd(
-                    [npm, "install", "--ignore-scripts"],
-                    cwd=root,
-                    timeout=timeout,
-                    env=env,
-                )
+                last = await run_cmd(argv, cwd=root, timeout=timeout, env=env)
             except FileNotFoundError:
-                pass
+                if i == 0:
+                    return self._result(
+                        Verdict.failed,
+                        summary="`npm` not on PATH — cannot run install",
+                        start_time=start,
+                        details={"error": "npm_not_found"},
+                    )
+                break
+            if last.returncode == 0 and not last.timed_out:
+                return self._result(
+                    Verdict.passed,
+                    summary=(
+                        f"`{' '.join(argv[1:])}` succeeded"
+                        + ("" if i == 0 else f" (tier {i + 1})")
+                    ),
+                    start_time=start,
+                    details={
+                        "command": argv,
+                        "tier": i + 1,
+                        "duration_seconds": last.duration_seconds,
+                        "stdout_tail": last.stdout.strip()[-500:],
+                    },
+                )
+            if last.timed_out:
+                break  # a timeout won't clear on retry — don't burn more budget
 
-        if fallback_run is not None and fallback_run.returncode == 0 and not fallback_run.timed_out:
-            return self._result(
-                Verdict.passed,
-                summary="`npm install --ignore-scripts` succeeded (npm ci fallback)",
-                start_time=start,
-                details={
-                    "command": [npm, "install", "--ignore-scripts"],
-                    "fallback_used": True,
-                    "duration_seconds": fallback_run.duration_seconds,
-                    "stdout_tail": fallback_run.stdout.strip()[-500:],
-                },
-            )
-
-        final = fallback_run if fallback_run is not None else primary
         summary = (
             "npm install timed out"
-            if final.timed_out
-            else f"npm install failed (exit {final.returncode})"
+            if last is not None and last.timed_out
+            else (
+                f"npm install failed (exit {last.returncode})"
+                if last is not None
+                else "npm install failed"
+            )
         )
         return self._result(
             Verdict.failed,
             summary=summary,
             start_time=start,
             details={
-                "command_primary": first_argv,
-                "fallback_used": fallback_run is not None,
-                "exit_code": final.returncode,
-                "timed_out": final.timed_out,
-                "stderr_tail": final.stderr.strip()[-2000:],
-                "stdout_tail": final.stdout.strip()[-1000:],
+                "tiers_tried": [t[1:] for t in tiers],
+                "exit_code": last.returncode if last is not None else None,
+                "timed_out": last.timed_out if last is not None else None,
+                "stderr_tail": last.stderr.strip()[-2000:] if last is not None else "",
+                "stdout_tail": last.stdout.strip()[-1000:] if last is not None else "",
             },
         )
 

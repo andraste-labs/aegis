@@ -105,13 +105,36 @@ def test_falls_back_to_install_when_ci_fails(tmp_path):
     with patch("aegis.checks.npm_install.run_cmd", side_effect=mock_run):
         result = asyncio.run(layer.run_async(ctx))
     assert result.verdict == Verdict.passed
-    assert result.details["fallback_used"] is True
+    # tier 2 = `npm install` after `npm ci` (tier 1) failed
+    assert result.details["tier"] == 2
 
 
-def test_fails_when_both_attempts_fail(tmp_path):
+def test_recovers_with_legacy_peer_deps(tmp_path):
+    # tier 1 (ci) and tier 2 (install) fail on a peer conflict; tier 3
+    # (`install --legacy-peer-deps`) recovers — the exact npm-7+ case this
+    # third tier was added for.
     _pkg(tmp_path)
     (tmp_path / "package-lock.json").write_text("{}")
-    seq = [_fail("stale lock"), _fail("registry conflict")]
+    calls = []
+    seq = [_fail("stale lock"), _fail("ERESOLVE peer conflict"), _ok()]
+
+    async def mock_run(argv, *, cwd, timeout, env):
+        calls.append(argv)
+        return seq.pop(0)
+
+    layer = NpmInstallCheck()
+    ctx = ValidationContext(code_path=tmp_path, stacks=["node"])
+    with patch("aegis.checks.npm_install.run_cmd", side_effect=mock_run):
+        result = asyncio.run(layer.run_async(ctx))
+    assert result.verdict == Verdict.passed
+    assert result.details["tier"] == 3
+    assert "--legacy-peer-deps" in calls[2]
+
+
+def test_fails_when_all_tiers_fail(tmp_path):
+    _pkg(tmp_path)
+    (tmp_path / "package-lock.json").write_text("{}")
+    seq = [_fail("stale lock"), _fail("peer conflict"), _fail("registry conflict")]
 
     async def mock_run(argv, *, cwd, timeout, env):
         return seq.pop(0)
@@ -121,6 +144,7 @@ def test_fails_when_both_attempts_fail(tmp_path):
     with patch("aegis.checks.npm_install.run_cmd", side_effect=mock_run):
         result = asyncio.run(layer.run_async(ctx))
     assert result.verdict == Verdict.failed
+    # the last tier's stderr is surfaced
     assert "registry conflict" in result.details["stderr_tail"]
 
 

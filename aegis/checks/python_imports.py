@@ -48,6 +48,23 @@ class MissingImport:
     module: str        # the dotted name that failed to resolve
 
 
+def _is_third_party_shadow(root: Path, first: str) -> bool:
+    """True if ``first`` names only a namespace-only local folder: a directory
+    with Python content but no ``__init__.py`` and no ``first.py`` sibling
+    (e.g. an Alembic ``alembic/versions/`` migrations tree). Such a name is NOT
+    an importable local package, so ``import first`` resolves to the 3rd-party
+    package of the same name and must not be flagged as an unresolved local
+    import. (The name lands in ``local_top_names`` purely because the dir
+    exists.)"""
+    d = root / first
+    return (
+        d.is_dir()
+        and not (d / "__init__.py").exists()
+        and not (root / f"{first}.py").exists()
+        and any(d.rglob("*.py"))
+    )
+
+
 def find_unresolved_local_imports(
     root: Path,
     *,
@@ -88,6 +105,8 @@ def find_unresolved_local_imports(
                     mod = alias.name
                     first = mod.split(".", 1)[0]
                     if first in STDLIB_NAMES or first not in local_top_names:
+                        continue
+                    if _is_third_party_shadow(root, first):
                         continue
                     if resolve_local_module(root, mod) is None:
                         # Also try the parent (`from foo.bar import baz`
@@ -132,6 +151,8 @@ def find_unresolved_local_imports(
                         continue
                     first = mod.split(".", 1)[0]
                     if first in STDLIB_NAMES or first not in local_top_names:
+                        continue
+                    if _is_third_party_shadow(root, first):
                         continue
                     if resolve_local_module(root, mod) is None:
                         missing.append(
