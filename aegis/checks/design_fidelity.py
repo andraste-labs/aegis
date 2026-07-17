@@ -162,9 +162,10 @@ def deterministic_evidence_override(
         return verdict
 
     code_lower = code_blob.lower()
-    overrides: list[str] = []
+    overrides: list[str] = []   # DOWNWARD adjustments (missing evidence) — force a fail
+    touched: list[str] = []     # every score change (up or down) — recompute overall
 
-    def _cap(name: str, max_score: int, reason: str) -> None:
+    def _apply(name: str, new_score: int, reason: str, *, cap_only: bool) -> None:
         for d in dimensions:
             if not isinstance(d, dict) or d.get("name") != name:
                 continue
@@ -172,17 +173,36 @@ def deterministic_evidence_override(
                 original = int(d.get("score") or 0)
             except (TypeError, ValueError):
                 original = 0
-            if original > max_score:
-                d["score"] = max_score
-                prefix = (
-                    f"OVERRIDE — deterministic check: {reason} "
-                    f"Original LLM score {original}/10 capped at {max_score}/10. "
-                )
-                d["comment"] = prefix + str(d.get("comment") or "")
-                overrides.append(f"{name} {original}->{max_score} ({reason})")
+            # `_cap` only ever lowers; `_force` replaces (up or down).
+            target = min(new_score, original) if cap_only else new_score
+            if target == original:
+                break
+            d["score"] = target
+            down = target < original
+            verb = "capped at" if down else "raised to"
+            d["comment"] = (
+                f"OVERRIDE — deterministic check: {reason} "
+                f"LLM score {original}/10 {verb} {target}/10. "
+            ) + str(d.get("comment") or "")
+            touched.append(f"{name} {original}->{target}")
+            # Only a DOWNWARD move (evidence missing) fails the build. Raising a
+            # too-harsh LLM score corrects the number without failing an honest build.
+            if down:
+                overrides.append(f"{name} {original}->{target} ({reason})")
             break
 
-    # Palette: required hex codes must literally appear.
+    def _cap(name: str, max_score: int, reason: str) -> None:
+        _apply(name, max_score, reason, cap_only=True)
+
+    def _force(name: str, new_score: int, reason: str) -> None:
+        _apply(name, new_score, reason, cap_only=False)
+
+    # Palette: score deterministically from how many required hex codes
+    # literally appear, replacing the LLM's palette judgment entirely. Score =
+    # round(found / required * 10). The same CSS always yields the same palette
+    # number, so a passing build no longer flips to failing between runs on
+    # inter-round LLM variance (and a too-harsh LLM palette score is corrected
+    # upward without failing the build).
     pal = dna.brand.palette
     required_hex = [h for h in (pal.primary, pal.secondary, pal.accent, pal.bg, pal.fg) if h]
     if required_hex:
@@ -193,12 +213,14 @@ def deterministic_evidence_override(
                 continue
             if not any(v.lower() in code_lower for v in variants):
                 missing.append(hex_val)
-        if missing and len(missing) >= (len(required_hex) + 1) // 2:
-            _cap(
-                "palette", 4,
-                f"{len(missing)}/{len(required_hex)} required hex codes "
-                f"({', '.join(missing)}) NOT FOUND in code.",
-            )
+        found = len(required_hex) - len(missing)
+        palette_score = round((found / len(required_hex)) * 10)
+        reason = (
+            f"{found}/{len(required_hex)} required hex codes present in code"
+            + (f"; missing: {', '.join(missing)}" if missing else "")
+            + "."
+        )
+        _force("palette", palette_score, reason)
 
     # Fonts: required Google Fonts families must literally appear.
     fonts = dna.brand.fonts
@@ -227,7 +249,8 @@ def deterministic_evidence_override(
                 f"but code contains: {', '.join(violations)}.",
             )
 
-    if overrides:
+    # Any score change (up or down) means the overall must be recomputed.
+    if touched:
         scores: list[int] = []
         for d in dimensions:
             if isinstance(d, dict):
@@ -237,6 +260,9 @@ def deterministic_evidence_override(
                     pass
         if scores:
             verdict["overall_score"] = round(sum(scores) / len(scores))
+
+    # Only downward overrides (missing evidence) force the build to fail.
+    if overrides:
         existing = verdict.get("missing") if isinstance(verdict.get("missing"), list) else []
         verdict["missing"] = [f"DETERMINISTIC OVERRIDE: {'; '.join(overrides)}"] + list(existing)
         verdict["forced_fail"] = True

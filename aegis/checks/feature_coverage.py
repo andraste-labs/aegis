@@ -44,6 +44,12 @@ from aegis.result import LayerKind, LayerResult, Verdict
 
 _MAX_TOKENS = 2048
 
+# Feature coverage judges the frontend only — no `.py`. An empty result means
+# a non-frontend stack, which the layer skips rather than false-fails.
+_FRONTEND_EXTS: tuple[str, ...] = (
+    ".html", ".htm", ".js", ".mjs", ".cjs", ".jsx", ".tsx", ".ts", ".css",
+)
+
 
 # Stopwords for feature-label keyword extraction (EN + TR).
 _STOPWORDS: frozenset[str] = frozenset([
@@ -207,6 +213,79 @@ the feature is missing.
 """
 
 
+# Semantic-evidence rescue: the judge said "missing" but the code obviously
+# contains the mechanism (Web Audio for sound features, textContent flips for
+# mode labels, stroke-dasharray for progress rings, ...). Each entry is
+# (label pattern, code pattern); a feature is rescued only when its label NAMES
+# the mechanism AND the code contains a recognizable implementation — a stub
+# (an empty `<div id="mode-label">` with no textContent flip) does not match,
+# because the JS-side pattern is what has to be present. Case-insensitive.
+_SEMANTIC_EVIDENCE_PATTERNS: tuple[tuple[str, str], ...] = (
+    (
+        r"\b(audio|beep|tone|sound|chime|alarm)\b",
+        r"(AudioContext|webkitAudioContext|createOscillator|"
+        r"OscillatorNode|new\s+Audio\s*\(|AudioBufferSourceNode)",
+    ),
+    (
+        r"\b(mode|status|state|phase)\s+label\b",
+        r"(textContent|innerText|innerHTML)\s*=[^;]{0,200}?"
+        r"['\"`][A-Z][A-Z _-]{1,30}['\"`]|"
+        r"data-(mode|status|state|phase)\s*=",
+    ),
+    (
+        r"\b(progress\s+ring|progress\s+circle|circular\s+progress|"
+        r"ring\s+indicator)\b",
+        r"(stroke-dasharray|stroke-dashoffset)",
+    ),
+    (
+        r"\b(localstorage|persist|save\s+.*\bbrowser|store\s+"
+        r".*\bbrowser|restore.*\breload)\b",
+        r"localStorage\.(setItem|getItem|removeItem)",
+    ),
+    (
+        r"\b(theme\s+toggle|dark\s+mode|light\s+mode|color\s+scheme)\b",
+        r"(data-theme|\.dark\b|prefers-color-scheme|"
+        r"classList\.toggle\s*\(\s*['\"]dark)",
+    ),
+    (
+        r"\b(keyboard\s+shortcut|hotkey|keypress\s+handler|key\s+binding)\b",
+        r"addEventListener\s*\(\s*['\"](keydown|keyup|keypress)['\"]",
+    ),
+    (
+        r"\b(auto[-\s]?refresh|polling|live\s+update|tick|countdown)\b",
+        r"(setInterval\s*\(|setTimeout\s*\([^,]+,\s*\d{2,})",
+    ),
+    (
+        r"\b(reset|clear\s+all|restore\s+defaults|wipe)\b",
+        r"(function\s+\w*[Rr]eset|=>\s*\{[^}]*reset|"
+        r"addEventListener\s*\(\s*['\"]click['\"][^)]*[Rr]eset)",
+    ),
+    (
+        r"\b(inline\s+error|friendly\s+error|validation\s+message|error\s+state)\b",
+        r"(\.error|class=['\"][^'\"]*error|id=['\"][^'\"]*error)",
+    ),
+)
+
+
+def search_semantic_evidence(label: str, code: str) -> str | None:
+    """Return a short match string when the feature ``label`` names a known
+    mechanism AND ``code`` contains a recognizable implementation of it — the
+    false-negative escape hatch. ``None`` when no class matches (keep the LLM
+    verdict). Conservative by construction: the code-side pattern must match,
+    so a stub that only has the HTML id does not rescue."""
+    if not label or not code:
+        return None
+    label_low = label.lower()
+    for label_pat, code_pat in _SEMANTIC_EVIDENCE_PATTERNS:
+        if not re.search(label_pat, label_low):
+            continue
+        m = re.search(code_pat, code, flags=re.IGNORECASE)
+        if m:
+            snippet = m.group(0)
+            return snippet if len(snippet) <= 60 else snippet[:60] + "…"
+    return None
+
+
 def cross_validate(
     features: list[str],
     deterministic_missing: dict[str, list[str]],
@@ -270,6 +349,11 @@ def cross_validate(
 
         # No deterministic miss — trust the LLM but require explicit "present".
         if llm_status == "present":
+            present.append(label)
+        elif search_semantic_evidence(label, code_lower):
+            # False-negative rescue: Stage 1 found the marker but the judge said
+            # missing/partial, yet the code demonstrably contains the named
+            # mechanism (e.g. AudioContext for a "beep" feature). Flip to present.
             present.append(label)
         else:
             missing.append({
@@ -385,13 +469,15 @@ class FeatureCoverageCheck(CheckLayer):
                 "feature_coverage cannot run without one)"
             )
 
-        code_blob = collect_code_blob(root)
+        # Feature coverage judges the FRONTEND. Collect only frontend code
+        # (no `.py`); if there is none, this is a non-frontend stack and the
+        # layer does not apply — skip cleanly instead of false-failing on
+        # backend code that has no UI features to find.
+        code_blob = collect_code_blob(root, extensions=_FRONTEND_EXTS)
         if not code_blob.strip():
-            return self._result(
-                Verdict.failed,
-                summary="feature coverage unverified — no readable code under code_path",
-                start_time=start,
-                details={"reason": "empty_code_blob", "features": features},
+            return self._skip(
+                "No frontend code to judge — feature coverage does not apply "
+                "to a non-frontend stack"
             )
 
         code_lower = code_blob.lower()

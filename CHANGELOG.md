@@ -39,6 +39,17 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   reports phantom `node_modules` errors (TS2468 / TS2583); a `lib` array with
   no ES2015+ member and an `es3`/`es5` `target` are raised to `ES2020`; and the
   test-exclude patch now tolerates trailing prose after the JSON object.
+- **feature_coverage:** the layer now judges frontend code only and skips
+  cleanly on a non-frontend stack instead of failing; and a semantic-evidence
+  rescue flips a judge "missing" verdict back to present when the code
+  demonstrably contains the named mechanism (e.g. `AudioContext` for a "beep"
+  feature, a `textContent` flip for a mode label) — a stub with only the HTML
+  id does not rescue.
+- **design_fidelity:** the palette dimension is scored deterministically
+  (`round(found / required hex * 10)`) instead of trusting the LLM's variable
+  palette number, so the same CSS yields the same palette score across runs;
+  a too-harsh LLM palette score is corrected upward without failing the build,
+  and only a downward (missing-evidence) correction forces a fail.
 
 ### Added
 

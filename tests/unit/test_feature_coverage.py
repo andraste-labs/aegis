@@ -255,3 +255,55 @@ def test_layer_falls_back_on_llm_error(tmp_path):
     assert result.verdict == Verdict.passed
     assert result.details["fallback"] is True
     assert "api down" in result.details["error"]
+
+
+# ---- Semantic-evidence rescue (false-negative escape hatch) ---------------
+
+
+def test_semantic_evidence_matches_named_mechanism():
+    from aegis.checks.feature_coverage import search_semantic_evidence
+
+    hit = search_semantic_evidence(
+        "Beep sound on finish",
+        "const ctx = new AudioContext(); ctx.createOscillator();",
+    )
+    assert hit is not None and "AudioContext" in hit
+
+
+def test_semantic_evidence_ignores_stub_html_id():
+    # Only the HTML id is present, no textContent flip — must NOT rescue.
+    from aegis.checks.feature_coverage import search_semantic_evidence
+
+    assert search_semantic_evidence("Mode label", "<div id='mode-label'></div>") is None
+
+
+def test_semantic_evidence_no_class_returns_none():
+    from aegis.checks.feature_coverage import search_semantic_evidence
+
+    assert search_semantic_evidence("Some unrelated feature", "const x = 1;") is None
+
+
+def test_cross_validate_rescues_false_negative():
+    # Stage 1 found the marker (feature not in deterministic_missing); the judge
+    # said "missing"; the code has the textContent flip → rescued to present.
+    code = "el.textContent = isWork ? 'WORK' : 'BREAK';".lower()
+    present, missing, _ = cross_validate(
+        features=["Mode label"],
+        deterministic_missing={},
+        llm_results=[{"feature": "Mode label", "status": "missing", "evidence": ""}],
+        code_lower=code,
+    )
+    assert "Mode label" in present
+    assert missing == []
+
+
+def test_cross_validate_keeps_missing_without_mechanism():
+    # Judge says missing and the code has no recognizable mechanism → stays missing.
+    present, missing, _ = cross_validate(
+        features=["Mode label"],
+        deterministic_missing={},
+        llm_results=[{"feature": "Mode label", "status": "missing", "evidence": ""}],
+        code_lower="const x = 1;",
+    )
+    assert present == []
+    assert [m["feature"] for m in missing] == ["Mode label"]

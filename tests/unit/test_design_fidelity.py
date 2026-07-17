@@ -77,7 +77,9 @@ def test_nonempty_dna_recognised():
 # ----- deterministic_evidence_override -------------------------------------
 
 
-def test_palette_cap_fires_when_hex_absent():
+def test_palette_forced_to_zero_when_hex_absent():
+    # Palette is scored deterministically = round(found/required * 10). With the
+    # single required hex absent, found=0 → 0, and a downward move forces a fail.
     dna = _dna(palette=Palette(primary="#1a3d2e", secondary="", accent="", bg="", fg=""))
     verdict = {
         "overall_score": 8,
@@ -89,12 +91,14 @@ def test_palette_cap_fires_when_hex_absent():
     code = "body { color: #ffffff; }"  # No #1a3d2e
     out = deterministic_evidence_override(dna, code, verdict)
     pal_dim = next(d for d in out["dimensions"] if d["name"] == "palette")
-    assert pal_dim["score"] == 4
+    assert pal_dim["score"] == 0
     assert out["forced_fail"] is True
     assert "OVERRIDE" in pal_dim["comment"]
 
 
-def test_palette_no_cap_when_hex_present():
+def test_palette_forced_up_when_all_present():
+    # All required hexes present → round(1/1 * 10) = 10. An UPWARD correction of
+    # a too-harsh LLM score must NOT force a fail.
     dna = _dna(palette=Palette(primary="#1a3d2e", secondary="", accent="", bg="", fg=""))
     verdict = {
         "overall_score": 8,
@@ -102,7 +106,7 @@ def test_palette_no_cap_when_hex_present():
     }
     code = ".btn { background: #1a3d2e; }"
     out = deterministic_evidence_override(dna, code, verdict)
-    assert out["dimensions"][0]["score"] == 9
+    assert out["dimensions"][0]["score"] == 10
     assert "forced_fail" not in out
 
 
@@ -112,10 +116,11 @@ def test_rgb_form_counts_as_present():
         "overall_score": 8,
         "dimensions": [{"name": "palette", "score": 9, "comment": ""}],
     }
-    # 1a3d2e = rgb(26, 61, 46)
+    # 1a3d2e = rgb(26, 61, 46) — counts as present, so palette forces to 10.
     code = ".btn { background: rgb(26, 61, 46); }"
     out = deterministic_evidence_override(dna, code, verdict)
-    assert out["dimensions"][0]["score"] == 9
+    assert out["dimensions"][0]["score"] == 10
+    assert "forced_fail" not in out
 
 
 def test_philosophy_cap_on_forbidden_pattern():
