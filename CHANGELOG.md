@@ -7,6 +7,10 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-07-17
+
+First public release. Apache 2.0.
+
 ### Fixed
 
 - **node_deps_completeness / static_imports:** `@/…` and `@x` import
