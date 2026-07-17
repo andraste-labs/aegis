@@ -26,6 +26,7 @@ import time
 from pathlib import Path
 
 from aegis.checks.base import CheckLayer, ValidationContext
+from aegis.checks._tsconfig_repair import repair_root_tsconfig_file
 from aegis.result import LayerKind, LayerResult, Verdict
 from aegis.subprocess_runner import run_cmd, scrub_env
 
@@ -54,8 +55,16 @@ def patch_tsconfig_excludes(tsconfig_path: Path) -> bool:
     """
     try:
         text = tsconfig_path.read_text(encoding="utf-8")
-        cfg = json.loads(text)
-    except (OSError, json.JSONDecodeError, ValueError):
+    except OSError:
+        return False
+    try:
+        # `raw_decode` tolerates trailing prose after the JSON object (agent
+        # output sometimes appends a note); a plain `json.loads` would raise
+        # "Extra data" and skip the patch, shipping the malformed config.
+        cfg, _ = json.JSONDecoder().raw_decode(text.lstrip())
+    except (json.JSONDecodeError, ValueError):
+        return False
+    if not isinstance(cfg, dict):
         return False
 
     exclude = cfg.get("exclude") or []
@@ -97,6 +106,10 @@ class TscCheck(CheckLayer):
         if not tsconfig.exists():
             return self._skip("No tsconfig.json at root")
 
+        # Normalize a degenerate/pre-ES2015 config BEFORE running tsc, so a
+        # phantom failure (TS2468 Promise, node_modules TS2583) from an unusable
+        # config isn't reported as the user's type error. Then patch excludes.
+        repaired = repair_root_tsconfig_file(root)
         patched = patch_tsconfig_excludes(tsconfig)
         npx = _npx_argv0()
 
@@ -134,6 +147,7 @@ class TscCheck(CheckLayer):
                 start_time=start,
                 details={
                     "tsconfig_patched": patched,
+                    "tsconfig_repaired": repaired,
                     "duration_seconds": result.duration_seconds,
                 },
             )
@@ -144,6 +158,7 @@ class TscCheck(CheckLayer):
             start_time=start,
             details={
                 "tsconfig_patched": patched,
+                "tsconfig_repaired": repaired,
                 "exit_code": result.returncode,
                 "stdout_tail": result.stdout.strip()[-2000:],
                 "stderr_tail": result.stderr.strip()[-500:],

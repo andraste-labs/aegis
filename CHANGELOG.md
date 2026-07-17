@@ -33,6 +33,12 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **npm_install:** added a final `npm install --ignore-scripts
   --legacy-peer-deps` recovery tier, so an npm 7+ peer-dependency conflict that
   older npm tolerated no longer fails an otherwise-installable project.
+- **tsc:** a degenerate root `tsconfig.json` (no `compilerOptions` /
+  `references` / `files` / `extends`, e.g. a stray `@/*` paths fragment) is
+  rebuilt before type-checking, so `tsc` no longer falls back to ES5 and
+  reports phantom `node_modules` errors (TS2468 / TS2583); a `lib` array with
+  no ES2015+ member and an `es3`/`es5` `target` are raised to `ES2020`; and the
+  test-exclude patch now tolerates trailing prose after the JSON object.
 
 ### Added
 
