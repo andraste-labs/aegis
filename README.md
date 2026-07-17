@@ -13,19 +13,22 @@ coverage. 22 layers are deterministic (no model call); 1 is LLM-judge;
 
 ## Install
 
-Install from source (a published `pip install aegis-validator` package is
-coming soon):
-
 ```
-git clone https://github.com/andraste-labs/aegis.git
-cd aegis
-pip install -e .
+pip install aegis-validator
 ```
 
 The Anthropic SDK is an optional extra for the LLM-using layers:
 
 ```
-pip install -e ".[anthropic]"
+pip install "aegis-validator[anthropic]"
+```
+
+Or from source:
+
+```
+git clone https://github.com/andraste-labs/aegis.git
+cd aegis
+pip install -e .
 ```
 
 ## Quick start
