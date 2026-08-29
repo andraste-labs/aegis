@@ -71,5 +71,5 @@ By contributing, you agree your contributions are licensed under
 
 ## Questions
 
-Open a [discussion](https://github.com/andraste-labs/aegis/discussions)
-or email [github@andrastelabs.com](mailto:github@andrastelabs.com).
+Open a [discussion](https://github.com/novesteria/aegis/discussions)
+or email [hello@novesteria.com](mailto:hello@novesteria.com).

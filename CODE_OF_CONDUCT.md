@@ -67,7 +67,7 @@ public spaces.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may
 be reported by contacting the project team at
-[conduct@andrastelabs.com](mailto:conduct@andrastelabs.com). All
+[conduct@novesteria.com](mailto:conduct@novesteria.com). All
 complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security

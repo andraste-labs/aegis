@@ -26,7 +26,7 @@ pip install "aegis-validator[anthropic]"
 Or from source:
 
 ```
-git clone https://github.com/andraste-labs/aegis.git
+git clone https://github.com/novesteria/aegis.git
 cd aegis
 pip install -e .
 ```
@@ -75,5 +75,5 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Maintainer
 
-Aegis is maintained by [Andraste Labs](https://andrastelabs.com).
-Contact: [github@andrastelabs.com](mailto:github@andrastelabs.com).
+Aegis is maintained by [Novesteria](https://novesteria.com).
+Contact: [hello@novesteria.com](mailto:hello@novesteria.com).

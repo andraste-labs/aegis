@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "Apache-2.0" }
 authors = [
-    { name = "Andraste Labs", email = "github@andrastelabs.com" }
+    { name = "Novesteria", email = "hello@novesteria.com" }
 ]
 keywords = ["ai", "code-generation", "validation", "static-analysis", "ast", "llm"]
 classifiers = [
@@ -48,11 +48,11 @@ dev = [
 aegis = "aegis_cli.__main__:main"
 
 [project.urls]
-homepage = "https://aegis.andrastelabs.com"
-repository = "https://github.com/andraste-labs/aegis"
-documentation = "https://github.com/andraste-labs/aegis/tree/main/docs"
-issues = "https://github.com/andraste-labs/aegis/issues"
-changelog = "https://github.com/andraste-labs/aegis/blob/main/CHANGELOG.md"
+homepage = "https://aegis.novesteria.com"
+repository = "https://github.com/novesteria/aegis"
+documentation = "https://github.com/novesteria/aegis/tree/main/docs"
+issues = "https://github.com/novesteria/aegis/issues"
+changelog = "https://github.com/novesteria/aegis/blob/main/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["aegis", "aegis_cli"]

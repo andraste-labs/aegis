@@ -99,4 +99,4 @@ First public release. Apache 2.0.
 - `tools/calibrate_llm_cases.py` re-runs the calibration against the
   current model. `.env` (git-ignored) supplies the API key.
 
-[Unreleased]: https://github.com/andraste-labs/aegis/commits/main
+[Unreleased]: https://github.com/novesteria/aegis/commits/main

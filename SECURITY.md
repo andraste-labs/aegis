@@ -39,7 +39,7 @@ Reportable issues do **not** include:
 
 **Do not open a public issue for security reports.**
 
-Email [security@andrastelabs.com](mailto:security@andrastelabs.com) with:
+Email [security@novesteria.com](mailto:security@novesteria.com) with:
 
 1. A description of the vulnerability.
 2. Steps to reproduce, or a proof-of-concept.
@@ -66,10 +66,10 @@ our acknowledgment.
 ## Out of scope
 
 The Aegis validator itself is open source and runs locally. We do not
-operate a hosted version. Issues with Andraste Labs' hosted products should be reported to
+operate a hosted version. Issues with Novesteria's hosted products should be reported to
 their respective security contacts.
 
 ## About
 
-Aegis is maintained by [Andraste Labs](https://andrastelabs.com). For
-general questions, contact [github@andrastelabs.com](mailto:github@andrastelabs.com).
+Aegis is maintained by [Novesteria](https://novesteria.com). For
+general questions, contact [hello@novesteria.com](mailto:hello@novesteria.com).
