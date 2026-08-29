@@ -6,7 +6,9 @@
     "not_found_handling": "single-page-application"
   },
   "routes": [
-    { "pattern": "aegis.novesteria.com", "custom_domain": true },
-    { "pattern": "aegis.andrastelabs.com", "custom_domain": true }
+    {
+      "pattern": "aegis.novesteria.com",
+      "custom_domain": true
+    }
   ]
 }
