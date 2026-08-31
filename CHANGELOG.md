@@ -14,6 +14,11 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   live behavior probes, RLS/access audit, best-round delivery) comparison,
   so visitors can see what the static layer covers and what the running-app
   layer adds.
+- Homepage ships a real "try it" tool on the full-engine card: Google
+  sign-in, then upload a `.zip` and get back a live report from the
+  full-engine scan service (a separate backend, own auth, own database —
+  runs your code in an isolated sandbox, never on our own host).
+- Light theme.
 
 ## [0.1.0] - 2026-07-17
 
