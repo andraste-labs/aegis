@@ -7,6 +7,14 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Homepage now explains the open-core model: an "Aegis Core" (this repo,
+  Apache 2.0, self-hosted) vs. "Aegis" full-engine (managed or self-hosted,
+  live behavior probes, RLS/access audit, best-round delivery) comparison,
+  so visitors can see what the static layer covers and what the running-app
+  layer adds.
+
 ## [0.1.0] - 2026-07-17
 
 First public release. Apache 2.0.
