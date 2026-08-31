@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#E9ECE6" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <title>Try Aegis · by Novesteria</title>
+    <meta name="description" content="Sign in, upload your code, get a real Aegis Core report back — run in an isolated sandbox, nothing kept." />
+    <meta name="author" content="Novesteria" />
+    <link rel="canonical" href="https://aegis.novesteria.com/scan.html" />
+    <meta name="robots" content="noindex" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+
+    <style>
+        :root {
+            --ink: #1F2421;
+            --ink-muted: #5E6863;
+            --accent: #476B57;
+            --accent-strong: #324F40;
+            --canvas: #E9ECE6;
+            --deep: #1A1F1B;
+            --border: rgba(31, 36, 33, 0.12);
+            --fail: #611312;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--canvas);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+        a { color: var(--accent); text-decoration: none; transition: color 0.15s; }
+        a:hover { color: var(--accent-strong); }
+
+        header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: var(--ink);
+        }
+        .brand svg { color: var(--accent); }
+        .header-link {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--ink-muted);
+        }
+        .header-link:hover { color: var(--accent); }
+
+        main {
+            flex: 1;
+            padding: 3.5rem 2rem 4rem;
+        }
+        .container {
+            max-width: 46rem;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .container.wide { max-width: 60rem; }
+
+        .eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: var(--accent);
+            margin-bottom: 1.25rem;
+        }
+        h1 {
+            font-family: 'Inter Display', 'Inter', sans-serif;
+            font-size: clamp(1.875rem, 3vw + 1rem, 2.75rem);
+            font-weight: 600;
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+            margin: 0 0 1rem 0;
+            color: var(--ink);
+        }
+        .lede {
+            font-size: 1.0625rem;
+            line-height: 1.6;
+            color: rgba(31, 36, 33, 0.7);
+            max-width: 36rem;
+            margin: 0 0 2.5rem 0;
+        }
+
+        /* ---- panel: sign-in / upload states ---- */
+        .panel {
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2rem;
+            background: rgba(31, 36, 33, 0.02);
+        }
+        .panel p.hint {
+            font-size: 0.925rem;
+            line-height: 1.6;
+            color: rgba(31, 36, 33, 0.65);
+            margin: 0 0 1.5rem 0;
+        }
+        .cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            background: var(--accent);
+            color: var(--canvas);
+            font-weight: 500;
+            font-size: 0.95rem;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .cta:hover { background: var(--accent-strong); color: var(--canvas); }
+        .cta:disabled { opacity: 0.5; cursor: default; }
+        .cta-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            border: 1px solid rgba(31, 36, 33, 0.25);
+            background: none;
+            color: var(--ink);
+            font-weight: 500;
+            font-size: 0.95rem;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .cta-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+        .dropzone {
+            border: 1.5px dashed rgba(31, 36, 33, 0.25);
+            border-radius: 4px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .dropzone.drag { border-color: var(--accent); background: rgba(71, 107, 87, 0.05); }
+        .dropzone input[type="file"] { display: none; }
+        .dropzone label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent);
+            cursor: pointer;
+        }
+        .dropzone .filename {
+            margin-top: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: rgba(31, 36, 33, 0.6);
+        }
+        .actions { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+        .status-line {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: rgba(31, 36, 33, 0.65);
+            margin-top: 1rem;
+            min-height: 1.2em;
+        }
+        .spinner {
+            display: inline-block;
+            width: 0.7em;
+            height: 0.7em;
+            border: 2px solid rgba(71, 107, 87, 0.3);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 0.4em;
+            vertical-align: -0.05em;
+        }
+        @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ---- report ---- */
+        .report { margin-top: 3rem; }
+        .verdict-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1.75rem 2rem;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+        .verdict-banner.pass { background: rgba(71, 107, 87, 0.1); border: 1px solid rgba(71, 107, 87, 0.35); }
+        .verdict-banner.fail { background: rgba(97, 19, 18, 0.06); border: 1px solid rgba(97, 19, 18, 0.25); }
+        .verdict-label {
+            font-family: 'Inter Display', 'Inter', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        .verdict-banner.pass .verdict-label { color: var(--accent-strong); }
+        .verdict-banner.fail .verdict-label { color: var(--fail); }
+        .verdict-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: rgba(31, 36, 33, 0.6);
+            text-align: right;
+            line-height: 1.6;
+        }
+
+        .stat-row { display: flex; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .stat {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: rgba(31, 36, 33, 0.7);
+        }
+        .stat b { color: var(--ink); font-size: 1.1rem; display: block; font-family: 'Inter Display', 'Inter', sans-serif; font-weight: 600; }
+        .stat.stat-fail b { color: var(--fail); }
+        .stat.stat-pass b { color: var(--accent-strong); }
+
+        details.layer-group { margin-bottom: 1.25rem; }
+        details.layer-group > summary {
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--ink-muted);
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            list-style: none;
+        }
+        details.layer-group > summary::-webkit-details-marker { display: none; }
+        details.layer-group > summary::before { content: '▸ '; }
+        details.layer-group[open] > summary::before { content: '▾ '; }
+
+        .layer-row {
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(31, 36, 33, 0.06);
+            font-size: 0.875rem;
+        }
+        .layer-row:last-child { border-bottom: none; }
+        .layer-mark { font-family: 'JetBrains Mono', monospace; width: 1em; flex-shrink: 0; }
+        .layer-row.passed .layer-mark { color: var(--accent-strong); }
+        .layer-row.failed .layer-mark, .layer-row.error .layer-mark { color: var(--fail); }
+        .layer-row.skipped .layer-mark { color: rgba(31, 36, 33, 0.35); }
+        .layer-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--ink);
+            flex-shrink: 0;
+            min-width: 15rem;
+        }
+        .layer-summary { color: rgba(31, 36, 33, 0.65); line-height: 1.5; }
+        .layer-row.skipped .layer-summary, .layer-row.skipped .layer-name { color: rgba(31, 36, 33, 0.4); }
+
+        .scan-again { margin-top: 2rem; }
+
+        footer {
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--ink-muted);
+            text-align: center;
+        }
+        footer a { color: var(--ink-muted); }
+        footer a:hover { color: var(--accent); }
+
+        [hidden] { display: none !important; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="brand">
+            <svg width="24" height="24" viewBox="0 0 100 100" aria-hidden="true">
+                <path d="M50 8 L84 23 L84 53 C84 76 68 90 50 96 C32 90 16 76 16 53 L16 23 Z"
+                      stroke="currentColor" stroke-width="6" stroke-linejoin="round" fill="none"/>
+            </svg>
+            <span>aegis</span>
+        </a>
+        <a href="https://novesteria.com" class="header-link">by Novesteria ↗</a>
+    </header>
+
+    <main>
+        <div class="container" id="containerEl">
+            <p class="eyebrow">Try it</p>
+            <h1>Run the Aegis engine on your own code.</h1>
+            <p class="lede">
+                Sign in, upload a <code>.zip</code>, and get back a real report — the same
+                75-layer engine that verifies every project Team-AI builds, run inside an
+                isolated sandbox. Nothing you upload is kept.
+            </p>
+
+            <div class="panel" id="signinPanel">
+                <p class="hint">One click — we only ask for your name and email.</p>
+                <a id="aegisSignin" class="cta" href="https://aegis-full-api-production.up.railway.app/api/auth/google/start">
+                    Sign in with Google
+                </a>
+            </div>
+
+            <div class="panel" id="uploadPanel" hidden>
+                <div class="dropzone" id="dropzone">
+                    <label for="aegisFile">Choose a .zip file, or drag one here</label>
+                    <input type="file" id="aegisFile" accept=".zip" />
+                    <div class="filename" id="filenameEl"></div>
+                </div>
+                <div class="actions">
+                    <button id="aegisRun" class="cta" type="button">Run Aegis</button>
+                    <button id="aegisSignout" class="cta-secondary" type="button">Sign out</button>
+                </div>
+                <div class="status-line" id="statusEl" aria-live="polite"></div>
+            </div>
+
+            <div class="report" id="reportEl" hidden></div>
+        </div>
+    </main>
+
+    <footer>
+        Aegis · by <a href="https://novesteria.com">Novesteria</a>
+    </footer>
+
+    <script>
+    (function () {
+        var API = 'https://aegis-full-api-production.up.railway.app';
+        var TOKEN_KEY = 'aegis_token';
+
+        function getToken() { try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; } }
+        function setToken(t) { try { localStorage.setItem(TOKEN_KEY, t); } catch (e) {} }
+        function clearToken() { try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+
+        (function consumeHash() {
+            var m = location.hash.match(/aegis_token=([^&]+)/);
+            if (m) {
+                setToken(decodeURIComponent(m[1]));
+                history.replaceState(null, '', location.pathname + location.search);
+            } else if (/aegis_error=/.test(location.hash)) {
+                history.replaceState(null, '', location.pathname + location.search);
+            }
+        })();
+
+        var signinPanel = document.getElementById('signinPanel');
+        var uploadPanel = document.getElementById('uploadPanel');
+        var dropzone = document.getElementById('dropzone');
+        var fileInput = document.getElementById('aegisFile');
+        var filenameEl = document.getElementById('filenameEl');
+        var runBtn = document.getElementById('aegisRun');
+        var signoutBtn = document.getElementById('aegisSignout');
+        var statusEl = document.getElementById('statusEl');
+        var reportEl = document.getElementById('reportEl');
+
+        function render() {
+            var token = getToken();
+            signinPanel.hidden = !!token;
+            uploadPanel.hidden = !token;
+        }
+        render();
+
+        function setStatus(html) { statusEl.innerHTML = html || ''; }
+
+        ['dragover', 'dragenter'].forEach(function (evt) {
+            dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.add('drag'); });
+        });
+        ['dragleave', 'drop'].forEach(function (evt) {
+            dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.remove('drag'); });
+        });
+        dropzone.addEventListener('drop', function (e) {
+            var f = e.dataTransfer.files && e.dataTransfer.files[0];
+            if (f) { fileInput.files = e.dataTransfer.files; filenameEl.textContent = f.name; }
+        });
+        fileInput.addEventListener('change', function () {
+            var f = fileInput.files && fileInput.files[0];
+            filenameEl.textContent = f ? f.name : '';
+        });
+
+        function fmtDuration(sec) {
+            if (sec == null) return '';
+            if (sec < 60) return sec.toFixed(1) + 's';
+            return Math.floor(sec / 60) + 'm ' + Math.round(sec % 60) + 's';
+        }
+
+        function layerRow(layer) {
+            var mark = layer.verdict === 'passed' ? '✓' : layer.verdict === 'skipped' ? '·' : '✗';
+            return '<div class="layer-row ' + layer.verdict + '">' +
+                '<span class="layer-mark">' + mark + '</span>' +
+                '<span class="layer-name">' + layer.name + '</span>' +
+                '<span class="layer-summary">' + (layer.summary || layer.verdict) + '</span>' +
+                '</div>';
+        }
+
+        function renderReport(report) {
+            var layers = (report && report.layers) || [];
+            var failed = layers.filter(function (l) { return l.verdict === 'failed' || l.verdict === 'error'; });
+            var passed = layers.filter(function (l) { return l.verdict === 'passed'; });
+            var skipped = layers.filter(function (l) { return l.verdict === 'skipped'; });
+
+            var passClass = report && report.passed ? 'pass' : 'fail';
+            var stacks = (report && report.stacks_detected || []).join(', ') || 'unknown';
+
+            var html = '';
+            html += '<div class="verdict-banner ' + passClass + '">' +
+                '<span class="verdict-label">' + (report && report.passed ? 'PASSED' : 'FAILED') + '</span>' +
+                '<span class="verdict-meta">stack: ' + stacks + '<br>' +
+                (report ? fmtDuration(report.duration_seconds) : '') + '</span>' +
+                '</div>';
+
+            html += '<div class="stat-row">' +
+                '<div class="stat stat-pass"><b>' + passed.length + '</b>passed</div>' +
+                '<div class="stat stat-fail"><b>' + failed.length + '</b>failed</div>' +
+                '<div class="stat"><b>' + skipped.length + '</b>skipped</div>' +
+                '</div>';
+
+            if (failed.length) {
+                html += '<details class="layer-group" open><summary>Failed (' + failed.length + ')</summary>' +
+                    failed.map(layerRow).join('') + '</details>';
+            }
+            if (passed.length) {
+                html += '<details class="layer-group"><summary>Passed (' + passed.length + ')</summary>' +
+                    passed.map(layerRow).join('') + '</details>';
+            }
+            if (skipped.length) {
+                html += '<details class="layer-group"><summary>Skipped (' + skipped.length + ')</summary>' +
+                    skipped.map(layerRow).join('') + '</details>';
+            }
+
+            html += '<div class="scan-again"><button class="cta-secondary" type="button" onclick="location.reload()">Scan another project</button></div>';
+
+            reportEl.innerHTML = html;
+            reportEl.hidden = false;
+            reportEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function poll(id, token) {
+            var attempts = 0;
+            function tick() {
+                attempts += 1;
+                fetch(API + '/api/scans/' + id, { headers: { Authorization: 'Bearer ' + token } })
+                    .then(function (res) {
+                        if (res.status === 401) {
+                            clearToken(); render();
+                            setStatus('Your session expired — sign in again.');
+                            return null;
+                        }
+                        if (!res.ok) { setStatus('Could not check status (HTTP ' + res.status + ').'); return null; }
+                        return res.json();
+                    })
+                    .then(function (scan) {
+                        if (!scan) return;
+                        if (scan.status === 'done') { setStatus(''); renderReport(scan.report); return; }
+                        if (scan.status === 'failed') { setStatus('Failed: ' + (scan.error || 'unknown error')); return; }
+                        setStatus('<span class="spinner"></span>Running… (' + scan.status + ')');
+                        if (attempts < 120) { setTimeout(tick, 3000); }
+                        else { setStatus('Still running — taking longer than expected.'); }
+                    })
+                    .catch(function () { setStatus('Network error while checking status.'); });
+            }
+            setTimeout(tick, 1500);
+        }
+
+        signoutBtn.addEventListener('click', function () {
+            clearToken();
+            setStatus('');
+            reportEl.hidden = true;
+            reportEl.innerHTML = '';
+            render();
+        });
+
+        runBtn.addEventListener('click', function () {
+            var token = getToken();
+            if (!token) { render(); return; }
+            var file = fileInput.files && fileInput.files[0];
+            if (!file) { setStatus('Choose a .zip file first.'); return; }
+            if (!/\.zip$/i.test(file.name)) { setStatus('Only .zip files.'); return; }
+            runBtn.disabled = true;
+            reportEl.hidden = true;
+            reportEl.innerHTML = '';
+            setStatus('<span class="spinner"></span>Uploading…');
+            var form = new FormData();
+            form.append('file', file);
+            fetch(API + '/api/scans', {
+                method: 'POST',
+                headers: { Authorization: 'Bearer ' + token },
+                body: form,
+            }).then(function (res) {
+                if (res.status === 401) {
+                    clearToken(); render();
+                    setStatus('Your session expired — sign in again.');
+                    runBtn.disabled = false;
+                    return null;
+                }
+                if (!res.ok) {
+                    return res.json().catch(function () { return {}; }).then(function (body) {
+                        setStatus('Could not start the scan' + (body.detail ? ': ' + body.detail : '.'));
+                        runBtn.disabled = false;
+                        return null;
+                    });
+                }
+                return res.json();
+            }).then(function (job) {
+                if (!job) return;
+                setStatus('<span class="spinner"></span>Queued…');
+                poll(job.id, token);
+                runBtn.disabled = false;
+            }).catch(function () {
+                setStatus('Network error while uploading.');
+                runBtn.disabled = false;
+            });
+        });
+    })();
+    </script>
+</body>
+</html>

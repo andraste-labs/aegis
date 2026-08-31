@@ -19,6 +19,11 @@ versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   full-engine scan service (a separate backend, own auth, own database —
   runs your code in an isolated sandbox, never on our own host).
 - Light theme.
+- The scan tool moved to its own page (`/scan.html`) with a proper report
+  view — verdict banner, pass/fail/skip counts, and collapsible
+  failed/passed/skipped sections — instead of a cramped list inside the
+  homepage card. The shield mark (from the Team-AI family logo, no
+  monogram) is now the site's favicon and header icon.
 
 ## [0.1.0] - 2026-07-17
 

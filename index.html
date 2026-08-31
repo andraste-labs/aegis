@@ -328,52 +328,6 @@
             margin-left: 0;
         }
 
-        .try-tool { display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; }
-        .try-hint {
-            font-size: 0.85rem;
-            line-height: 1.5;
-            color: rgba(31, 36, 33, 0.65);
-            margin: 0;
-        }
-        #aegisFile {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            color: var(--ink);
-            max-width: 100%;
-        }
-        .try-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-        .try-status {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-            color: rgba(31, 36, 33, 0.7);
-            min-height: 1.2em;
-        }
-        .try-report {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-        }
-        .try-verdict {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            font-weight: 600;
-            padding: 0.4rem 0.6rem;
-            border-radius: 2px;
-            width: 100%;
-        }
-        .try-verdict-pass { background: rgba(71, 107, 87, 0.12); color: var(--accent-strong); }
-        .try-verdict-fail { background: rgba(97, 19, 18, 0.1); color: #611312; }
-        .try-layer {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
-            line-height: 1.5;
-            color: rgba(31, 36, 33, 0.75);
-        }
-        .try-layer-failed, .try-layer-error { color: #611312; }
         .try-note {
             max-width: 56rem;
             margin: 1.5rem auto 0;
@@ -503,165 +457,17 @@ aegis check ./your-code</code></pre>
                     <li>best-round delivery &amp; audit reports</li>
                     <li>continuous verification on every ship</li>
                 </ul>
-                <div class="try-tool" id="aegisTry">
-                    <a id="aegisSignin" class="cta" href="https://aegis-full-api-production.up.railway.app/api/auth/google/start">
-                        Sign in with Google to try it
-                    </a>
-                    <div id="aegisApp" hidden>
-                        <p class="try-hint">Upload a .zip of your own code. It runs the real Core layers in a throwaway sandbox — nothing is kept.</p>
-                        <input type="file" id="aegisFile" accept=".zip" />
-                        <div class="try-actions">
-                            <button id="aegisRun" class="cta" type="button">Run Aegis Core</button>
-                            <button id="aegisSignout" class="cta-secondary" type="button">Sign out</button>
-                        </div>
-                        <div id="aegisStatus" class="try-status" aria-live="polite"></div>
-                        <ul id="aegisReport" class="try-report" hidden></ul>
-                    </div>
-                </div>
+                <a href="/scan.html" class="cta">
+                    Try it on your code
+                    <span aria-hidden="true">→</span>
+                </a>
             </div>
         </div>
-        <p class="try-note">This runs the 24 Core layers only. Contract-aware layers (live behavior probes, RLS audit) need a Team-AI data contract — <a href="mailto:hello@novesteria.com?subject=Aegis%20full%20engine">talk to us</a> about the managed engine.</p>
+        <p class="try-note">"Try it" runs 75 layers — Core plus everything ported from the full engine that doesn't need a Team-AI data contract. The remaining contract-aware layers (live behavior probes, RLS audit) only apply to Team-AI-shaped projects — <a href="mailto:hello@novesteria.com?subject=Aegis%20full%20engine">talk to us</a> about the managed engine.</p>
     </section>
 
     <footer>
         Aegis · by <a href="https://novesteria.com">Novesteria</a>
     </footer>
-
-    <script>
-    (function () {
-        var API = 'https://aegis-full-api-production.up.railway.app';
-        var TOKEN_KEY = 'aegis_token';
-
-        function getToken() { try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; } }
-        function setToken(t) { try { localStorage.setItem(TOKEN_KEY, t); } catch (e) {} }
-        function clearToken() { try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
-
-        (function consumeHash() {
-            var m = location.hash.match(/aegis_token=([^&]+)/);
-            if (m) {
-                setToken(decodeURIComponent(m[1]));
-                history.replaceState(null, '', location.pathname + location.search);
-            } else if (/aegis_error=/.test(location.hash)) {
-                history.replaceState(null, '', location.pathname + location.search);
-            }
-        })();
-
-        var signin = document.getElementById('aegisSignin');
-        var app = document.getElementById('aegisApp');
-        var fileInput = document.getElementById('aegisFile');
-        var runBtn = document.getElementById('aegisRun');
-        var signoutBtn = document.getElementById('aegisSignout');
-        var statusEl = document.getElementById('aegisStatus');
-        var reportEl = document.getElementById('aegisReport');
-        if (!signin || !app) { return; }
-
-        function render() {
-            var token = getToken();
-            signin.hidden = !!token;
-            app.hidden = !token;
-        }
-        render();
-
-        function setStatus(text) { statusEl.textContent = text || ''; }
-
-        function renderReport(report) {
-            reportEl.innerHTML = '';
-            reportEl.hidden = false;
-            var verdict = document.createElement('li');
-            verdict.className = 'try-verdict ' + (report && report.passed ? 'try-verdict-pass' : 'try-verdict-fail');
-            verdict.textContent = report && report.passed ? 'PASSED' : 'FAILED';
-            reportEl.appendChild(verdict);
-            var layers = (report && report.layers) || [];
-            layers.forEach(function (layer) {
-                var li = document.createElement('li');
-                var mark = layer.verdict === 'passed' ? '✓' : layer.verdict === 'skipped' ? '·' : '✗';
-                li.className = 'try-layer try-layer-' + layer.verdict;
-                li.textContent = mark + ' ' + layer.name + ' — ' + (layer.summary || layer.verdict);
-                reportEl.appendChild(li);
-            });
-        }
-
-        function poll(id, token) {
-            var attempts = 0;
-            function tick() {
-                attempts += 1;
-                fetch(API + '/api/scans/' + id, { headers: { Authorization: 'Bearer ' + token } })
-                    .then(function (res) {
-                        if (res.status === 401) {
-                            clearToken(); render();
-                            setStatus('Your session expired — sign in again.');
-                            return null;
-                        }
-                        if (!res.ok) { setStatus('Could not check status (HTTP ' + res.status + ').'); return null; }
-                        return res.json();
-                    })
-                    .then(function (scan) {
-                        if (!scan) return;
-                        if (scan.status === 'done') { setStatus('Done.'); renderReport(scan.report); return; }
-                        if (scan.status === 'failed') { setStatus('Failed: ' + (scan.error || 'unknown error')); return; }
-                        setStatus('Running… (' + scan.status + ')');
-                        if (attempts < 100) { setTimeout(tick, 3000); }
-                        else { setStatus('Still running — taking longer than expected.'); }
-                    })
-                    .catch(function () { setStatus('Network error while checking status.'); });
-            }
-            setTimeout(tick, 1500);
-        }
-
-        if (signoutBtn) {
-            signoutBtn.addEventListener('click', function () {
-                clearToken();
-                setStatus('');
-                reportEl.hidden = true;
-                reportEl.innerHTML = '';
-                render();
-            });
-        }
-
-        if (runBtn) {
-            runBtn.addEventListener('click', function () {
-                var token = getToken();
-                if (!token) { render(); return; }
-                var file = fileInput.files && fileInput.files[0];
-                if (!file) { setStatus('Choose a .zip file first.'); return; }
-                if (!/\.zip$/i.test(file.name)) { setStatus('Only .zip files.'); return; }
-                runBtn.disabled = true;
-                reportEl.hidden = true;
-                reportEl.innerHTML = '';
-                setStatus('Uploading…');
-                var form = new FormData();
-                form.append('file', file);
-                fetch(API + '/api/scans', {
-                    method: 'POST',
-                    headers: { Authorization: 'Bearer ' + token },
-                    body: form,
-                }).then(function (res) {
-                    if (res.status === 401) {
-                        clearToken(); render();
-                        setStatus('Your session expired — sign in again.');
-                        runBtn.disabled = false;
-                        return null;
-                    }
-                    if (!res.ok) {
-                        return res.json().catch(function () { return {}; }).then(function (body) {
-                            setStatus('Could not start the scan' + (body.detail ? ': ' + body.detail : '.'));
-                            runBtn.disabled = false;
-                            return null;
-                        });
-                    }
-                    return res.json();
-                }).then(function (job) {
-                    if (!job) return;
-                    setStatus('Queued…');
-                    poll(job.id, token);
-                    runBtn.disabled = false;
-                }).catch(function () {
-                    setStatus('Network error while uploading.');
-                    runBtn.disabled = false;
-                });
-            });
-        }
-    })();
-    </script>
 </body>
 </html>
