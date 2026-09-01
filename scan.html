@@ -46,29 +46,39 @@
         a:hover { color: var(--accent-strong); }
 
         header {
-            padding: 1.5rem 2rem;
+            padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--border);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+        }
+        .header-brand-group {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            min-width: 0;
         }
         .brand {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.6rem;
             font-weight: 600;
             font-size: 1.125rem;
             color: var(--ink);
+            flex-shrink: 0;
         }
-        .brand svg { color: var(--accent); }
+        .brand svg { color: var(--accent); flex-shrink: 0; }
         .header-link {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.18em;
+            letter-spacing: 0.14em;
             color: var(--ink-muted);
+            white-space: nowrap;
         }
         .header-link:hover { color: var(--accent); }
+        @media (max-width: 480px) {
+            .header-link { display: none; }
+        }
 
         main {
             flex: 1;
@@ -282,9 +292,14 @@
             color: var(--ink);
             flex-shrink: 0;
             min-width: 15rem;
+            overflow-wrap: anywhere;
         }
         .layer-summary { color: rgba(31, 36, 33, 0.65); line-height: 1.5; }
         .layer-row.skipped .layer-summary, .layer-row.skipped .layer-name { color: rgba(31, 36, 33, 0.4); }
+        @media (max-width: 560px) {
+            .layer-row { flex-wrap: wrap; }
+            .layer-name { min-width: 0; width: 100%; }
+        }
 
         .scan-again { margin-top: 2rem; }
 
@@ -303,14 +318,16 @@
 </head>
 <body>
     <header>
-        <a href="/" class="brand">
-            <svg width="24" height="24" viewBox="0 0 100 100" aria-hidden="true">
-                <path d="M50 8 L84 23 L84 53 C84 76 68 90 50 96 C32 90 16 76 16 53 L16 23 Z"
-                      stroke="currentColor" stroke-width="6" stroke-linejoin="round" fill="none"/>
-            </svg>
-            <span>aegis</span>
-        </a>
-        <a href="https://novesteria.com" class="header-link">by Novesteria ↗</a>
+        <div class="header-brand-group">
+            <a href="/" class="brand">
+                <svg width="24" height="24" viewBox="0 0 100 100" aria-hidden="true">
+                    <path d="M50 8 L84 23 L84 53 C84 76 68 90 50 96 C32 90 16 76 16 53 L16 23 Z"
+                          stroke="currentColor" stroke-width="6" stroke-linejoin="round" fill="none"/>
+                </svg>
+                <span>aegis</span>
+            </a>
+            <a href="https://novesteria.com" class="header-link">by Novesteria ↗</a>
+        </div>
     </header>
 
     <main>
