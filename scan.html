@@ -256,11 +256,12 @@
             line-height: 1.6;
             color: rgba(31, 36, 33, 0.65);
             padding: 1rem 1.25rem;
-            border-left: 2px solid var(--accent);
-            background: rgba(71, 107, 87, 0.04);
+            border-left: 2px solid var(--ink-muted);
+            background: rgba(31, 36, 33, 0.03);
             border-radius: 2px;
-            margin: 0 0 1.5rem 0;
+            margin: 0 0 1rem 0;
         }
+        .full-engine-note.passed { border-left-color: var(--accent); background: rgba(71, 107, 87, 0.05); }
 
         .layer-row {
             display: flex;
@@ -448,6 +449,10 @@
                 '<div class="stat stat-fail"><b>' + totalFailed + '</b>failed</div>' +
                 '<div class="stat"><b>' + totalSkipped + '</b>skipped</div>' +
                 '</div>';
+
+            if (report && report.passed_note) {
+                html += '<p class="full-engine-note passed">' + report.passed_note + '</p>';
+            }
 
             if (report && report.full_engine_note) {
                 html += '<p class="full-engine-note">' + report.full_engine_note + '</p>';
