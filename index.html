@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <title>Aegis · by Novesteria</title>
-    <meta name="description" content="A deterministic validator for AI-generated code. Open-core: Apache 2.0 base, full engine for teams who need the verdict to hold. By Novesteria." />
+    <meta name="description" content="A deterministic validator for AI-generated code. Run it on your own project and get a real report back. By Novesteria." />
     <meta name="author" content="Novesteria" />
     <link rel="canonical" href="https://aegis.novesteria.com/" />
 
@@ -18,12 +18,12 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Novesteria" />
     <meta property="og:title" content="Aegis · by Novesteria" />
-    <meta property="og:description" content="A deterministic validator for AI-generated code. Open-core: Apache 2.0 base, full engine for teams who need the verdict to hold." />
+    <meta property="og:description" content="A deterministic validator for AI-generated code. Run it on your own project and get a real report back." />
     <meta property="og:url" content="https://aegis.novesteria.com/" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Aegis · by Novesteria" />
-    <meta name="twitter:description" content="A deterministic validator for AI-generated code. Open-core: Apache 2.0 base, full engine for teams who need the verdict to hold." />
+    <meta name="twitter:description" content="A deterministic validator for AI-generated code. Run it on your own project and get a real report back." />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -188,146 +188,6 @@
             color: var(--accent);
         }
 
-        .install {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            line-height: 1.7;
-            background: rgba(31, 36, 33, 0.04);
-            border: 1px solid rgba(31, 36, 33, 0.12);
-            border-left: 2px solid var(--accent);
-            border-radius: 2px;
-            padding: 1.25rem 1.5rem;
-            margin: 0 0 2.5rem 0;
-            overflow-x: auto;
-            color: rgba(31, 36, 33, 0.85);
-        }
-        .install code { color: inherit; font-family: inherit; }
-
-        .editions-section {
-            position: relative;
-            z-index: 1;
-            border-top: 1px solid var(--border);
-            padding: 4rem 2rem;
-        }
-        .editions-head {
-            max-width: 40rem;
-            margin: 0 auto 2.5rem;
-        }
-        .editions-head .eyebrow { margin-bottom: 1rem; }
-        .editions-head h2 {
-            font-family: 'Inter Display', 'Inter', sans-serif;
-            font-size: clamp(1.5rem, 2vw + 1rem, 2.25rem);
-            font-weight: 600;
-            letter-spacing: -0.01em;
-            line-height: 1.15;
-            margin: 0 0 0.9rem 0;
-            color: var(--ink);
-        }
-        .editions-head p {
-            font-size: 1.0625rem;
-            line-height: 1.6;
-            color: rgba(31, 36, 33, 0.7);
-            margin: 0;
-        }
-        .editions {
-            max-width: 56rem;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-        }
-        @media (max-width: 640px) {
-            .editions { grid-template-columns: 1fr; }
-        }
-        .edition {
-            border: 1px solid rgba(31, 36, 33, 0.12);
-            border-radius: 3px;
-            padding: 1.75rem 1.75rem 2rem;
-            display: flex;
-            flex-direction: column;
-        }
-        .edition-full {
-            border-color: rgba(71, 107, 87, 0.5);
-            background: rgba(71, 107, 87, 0.06);
-        }
-        .edition-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
-            margin-bottom: 0.4rem;
-        }
-        .edition h3 {
-            font-family: 'Inter Display', 'Inter', sans-serif;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--ink);
-            margin: 0;
-        }
-        .edition-badge {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.6875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            padding: 0.3rem 0.55rem;
-            border-radius: 2px;
-            border: 1px solid rgba(31, 36, 33, 0.2);
-            color: var(--ink-muted);
-            white-space: nowrap;
-        }
-        .edition-full .edition-badge {
-            border-color: rgba(71, 107, 87, 0.5);
-            color: var(--accent-strong);
-        }
-        .edition-price {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8125rem;
-            color: rgba(31, 36, 33, 0.55);
-            margin: 0 0 1rem 0;
-        }
-        .edition-blurb {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: rgba(31, 36, 33, 0.7);
-            margin: 0 0 1.1rem 0;
-        }
-        .edition ul {
-            list-style: none;
-            margin: 0 0 1.5rem 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.55rem;
-            flex: 1;
-        }
-        .edition li {
-            font-size: 0.875rem;
-            line-height: 1.5;
-            color: rgba(31, 36, 33, 0.8);
-            padding-left: 1.15rem;
-            position: relative;
-        }
-        .edition li::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0.5em;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: var(--accent);
-        }
-        .edition li.muted {
-            color: rgba(31, 36, 33, 0.4);
-        }
-        .edition li.muted::before {
-            background: rgba(31, 36, 33, 0.25);
-        }
-        .edition .cta, .edition .cta-secondary {
-            align-self: flex-start;
-            margin-left: 0;
-        }
-
         footer {
             position: relative;
             z-index: 2;
@@ -364,7 +224,7 @@
 
     <main>
         <div class="container">
-            <p class="eyebrow">Open source · Apache 2.0</p>
+            <p class="eyebrow">Deterministic verification</p>
 
             <h1>A deterministic validator for AI-generated code.</h1>
 
@@ -386,77 +246,19 @@
                 </div>
                 <div class="grid-item">
                     <h3>Reproducible</h3>
-                    <p>A public benchmark cohort (<code>aegis-bench</code>) — any machine, same cases, same results. The output is the evidence.</p>
-                </div>
-                <div class="grid-item">
-                    <h3>Open source</h3>
-                    <p>Apache 2.0, on PyPI today. <code>pip install aegis-validator</code> and run it against your own code.</p>
+                    <p>A benchmark cohort (<code>aegis-bench</code>) — any machine, same cases, same results. The output is the evidence.</p>
                 </div>
             </div>
 
-            <pre class="install"><code>pip install aegis-validator
-aegis check ./your-code</code></pre>
-
-            <a href="https://github.com/novesteria/aegis" class="cta">
-                Get it on GitHub
-                <span aria-hidden="true">↗</span>
+            <a href="/scan" class="cta">
+                Try it on your code
+                <span aria-hidden="true">→</span>
             </a>
             <a href="https://novesteria.com" class="cta-secondary">
                 About Novesteria
             </a>
         </div>
     </main>
-
-    <section class="editions-section">
-        <div class="editions-head">
-            <p class="eyebrow">Open core</p>
-            <h2>Start free. Bring in the full engine when the verdict has to hold.</h2>
-            <p>This repository is the static core — read every layer, fork it, run it in your own
-                pipeline today. The full engine adds the layers that need a running app: live
-                behavior probes, row-level security and access audits, secret and
-                privilege-escalation checks. It's the same engine that verifies every project
-                Team-AI builds.</p>
-        </div>
-        <div class="editions">
-            <div class="edition">
-                <div class="edition-top">
-                    <h3>Aegis Core</h3>
-                    <span class="edition-badge">Open source</span>
-                </div>
-                <p class="edition-price">Free · self-hosted, Apache 2.0</p>
-                <p class="edition-blurb">This repository. The 24-layer static pipeline, in your own CI, with no lock-in.</p>
-                <ul>
-                    <li>24-layer deterministic + LLM-judge pipeline</li>
-                    <li>Python, Node.js and static-HTML stacks</li>
-                    <li>public benchmark cohort (<code>aegis-bench</code>)</li>
-                    <li>runs anywhere <code>pip</code> runs</li>
-                    <li class="muted">live behavior probes — full engine</li>
-                    <li class="muted">security &amp; access audit — full engine</li>
-                </ul>
-                <a href="https://github.com/novesteria/aegis" class="cta-secondary">Get the core</a>
-            </div>
-            <div class="edition edition-full">
-                <div class="edition-top">
-                    <h3>Aegis</h3>
-                    <span class="edition-badge">Full engine</span>
-                </div>
-                <p class="edition-price">Talk to us · managed or self-hosted</p>
-                <p class="edition-blurb">Everything in Core, plus the layers that need a real environment — the engine behind Team-AI.</p>
-                <ul>
-                    <li>everything in Aegis Core</li>
-                    <li>live behavior probes (isolation, sharing, roles)</li>
-                    <li>row-level security &amp; access audit</li>
-                    <li>secret &amp; privilege-escalation checks</li>
-                    <li>best-round delivery &amp; audit reports</li>
-                    <li>continuous verification on every ship</li>
-                </ul>
-                <a href="/scan" class="cta">
-                    Try it on your code
-                    <span aria-hidden="true">→</span>
-                </a>
-            </div>
-        </div>
-    </section>
 
     <footer>
         Aegis · by <a href="https://novesteria.com">Novesteria</a>
