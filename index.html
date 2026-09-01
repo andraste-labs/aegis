@@ -80,6 +80,11 @@
             color: var(--ink);
         }
         .brand svg { color: var(--accent); }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
         .header-link {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.75rem;
@@ -88,13 +93,27 @@
             color: var(--ink-muted);
         }
         .header-link:hover { color: var(--accent); }
+        .header-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1.1rem;
+            background: var(--accent);
+            color: var(--canvas);
+            font-weight: 500;
+            font-size: 0.85rem;
+            border-radius: 2px;
+            transition: background 0.15s;
+        }
+        .header-cta:hover { background: var(--accent-strong); color: var(--canvas); }
 
         main {
             position: relative;
             z-index: 1;
             flex: 1;
             display: flex;
-            padding: 4rem 2rem 2rem;
+            align-items: center;
+            padding: 3rem 2rem;
         }
         .container {
             max-width: 56rem;
@@ -130,11 +149,11 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 2rem;
-            margin-bottom: 4rem;
+            margin-bottom: 3rem;
         }
-        @media (max-width: 640px) {
+        @media (max-width: 800px) {
             .grid { grid-template-columns: 1fr; gap: 1.5rem; }
         }
         .grid-item {
@@ -219,7 +238,10 @@
             </svg>
             <span>aegis</span>
         </a>
-        <a href="https://novesteria.com" class="header-link">by Novesteria ↗</a>
+        <div class="header-actions">
+            <a href="https://novesteria.com" class="header-link">by Novesteria ↗</a>
+            <a href="/scan" class="header-cta">Try it</a>
+        </div>
     </header>
 
     <main>
