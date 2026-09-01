@@ -251,6 +251,17 @@
         details.layer-group > summary::before { content: '▸ '; }
         details.layer-group[open] > summary::before { content: '▾ '; }
 
+        .full-engine-note {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: rgba(31, 36, 33, 0.65);
+            padding: 1rem 1.25rem;
+            border-left: 2px solid var(--accent);
+            background: rgba(71, 107, 87, 0.04);
+            border-radius: 2px;
+            margin: 0 0 1.5rem 0;
+        }
+
         .layer-row {
             display: flex;
             align-items: baseline;
@@ -408,10 +419,19 @@
         }
 
         function renderReport(report) {
+            // report.layers is Core/OSS-only by the time it reaches the browser —
+            // the full-engine results are pre-aggregated into full_engine_note
+            // server-side (see aegis_full/api/report_sanitize.py). Nothing here
+            // should try to list or count full-engine layers individually.
             var layers = (report && report.layers) || [];
             var failed = layers.filter(function (l) { return l.verdict === 'failed' || l.verdict === 'error'; });
-            var passed = layers.filter(function (l) { return l.verdict === 'passed'; });
-            var skipped = layers.filter(function (l) { return l.verdict === 'skipped'; });
+            var passedCount = layers.filter(function (l) { return l.verdict === 'passed'; }).length;
+            var skippedCount = layers.filter(function (l) { return l.verdict === 'skipped'; }).length;
+
+            var engineCounts = (report && report.full_engine_counts) || { passed: 0, failed: 0, skipped: 0 };
+            var totalFailed = failed.length + engineCounts.failed;
+            var totalPassed = passedCount + engineCounts.passed;
+            var totalSkipped = skippedCount + engineCounts.skipped;
 
             var passClass = report && report.passed ? 'pass' : 'fail';
             var stacks = (report && report.stacks_detected || []).join(', ') || 'unknown';
@@ -424,22 +444,18 @@
                 '</div>';
 
             html += '<div class="stat-row">' +
-                '<div class="stat stat-pass"><b>' + passed.length + '</b>passed</div>' +
-                '<div class="stat stat-fail"><b>' + failed.length + '</b>failed</div>' +
-                '<div class="stat"><b>' + skipped.length + '</b>skipped</div>' +
+                '<div class="stat stat-pass"><b>' + totalPassed + '</b>passed</div>' +
+                '<div class="stat stat-fail"><b>' + totalFailed + '</b>failed</div>' +
+                '<div class="stat"><b>' + totalSkipped + '</b>skipped</div>' +
                 '</div>';
+
+            if (report && report.full_engine_note) {
+                html += '<p class="full-engine-note">' + report.full_engine_note + '</p>';
+            }
 
             if (failed.length) {
                 html += '<details class="layer-group" open><summary>Failed (' + failed.length + ')</summary>' +
                     failed.map(layerRow).join('') + '</details>';
-            }
-            if (passed.length) {
-                html += '<details class="layer-group"><summary>Passed (' + passed.length + ')</summary>' +
-                    passed.map(layerRow).join('') + '</details>';
-            }
-            if (skipped.length) {
-                html += '<details class="layer-group"><summary>Skipped (' + skipped.length + ')</summary>' +
-                    skipped.map(layerRow).join('') + '</details>';
             }
 
             html += '<div class="scan-again"><button class="cta-secondary" type="button" onclick="location.reload()">Scan another project</button></div>';
