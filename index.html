@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <title>Aegis · by Novesteria</title>
-    <meta name="description" content="A deterministic validator for AI-generated code. Run it on your own project and get a real report back. By Novesteria." />
+    <meta name="description" content="Run Aegis Core's 24 open-source layers free on the web, or use the proprietary 75-layer Aegis Full engine." />
     <meta name="author" content="Novesteria" />
     <link rel="canonical" href="https://aegis.novesteria.com/" />
 
@@ -18,12 +18,12 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Novesteria" />
     <meta property="og:title" content="Aegis · by Novesteria" />
-    <meta property="og:description" content="A deterministic validator for AI-generated code. Run it on your own project and get a real report back." />
+    <meta property="og:description" content="24 open-source layers, free on the web. 75 proprietary layers for deeper managed verification." />
     <meta property="og:url" content="https://aegis.novesteria.com/" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Aegis · by Novesteria" />
-    <meta name="twitter:description" content="A deterministic validator for AI-generated code. Run it on your own project and get a real report back." />
+    <meta name="twitter:description" content="24 open-source layers, free on the web. 75 proprietary layers for deeper managed verification." />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -230,73 +230,217 @@
         footer a { color: var(--ink-muted); }
         footer a:hover { color: var(--accent); }
     </style>
+    <link rel="stylesheet" href="aegis-site.css" />
 </head>
 <body>
-    <!-- Open Grove background pattern -->
-    <svg class="grove-bg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <g stroke="#476B57" stroke-width="1.5" fill="none">
-            <g transform="translate(150,0)"><path d="M0 800 V 320"/><path d="M180 800 V 320"/><path d="M0 320 Q 90 240 180 320"/></g>
-            <g transform="translate(550,0)"><path d="M0 800 V 280"/><path d="M220 800 V 280"/><path d="M0 280 Q 110 200 220 280"/></g>
-            <g transform="translate(960,0)"><path d="M0 800 V 340"/><path d="M180 800 V 340"/><path d="M0 340 Q 90 260 180 340"/></g>
-        </g>
-    </svg>
+    <header class="site-header">
+        <div class="nav-shell">
+            <div class="header-brand-group">
+                <a href="/" class="brand" aria-label="Aegis home">
+                    <span class="brand-mark">
+                        <svg viewBox="0 0 100 100" aria-hidden="true">
+                            <path d="M50 8 L84 23 L84 53 C84 76 68 90 50 96 C32 90 16 76 16 53 L16 23 Z"
+                                  stroke="currentColor" stroke-width="7" stroke-linejoin="round" fill="none"/>
+                        </svg>
+                    </span>
+                    <span>aegis</span>
+                </a>
+                <a href="https://novesteria.com" class="header-link">by Novesteria ↗</a>
+            </div>
 
-    <header>
-        <div class="header-brand-group">
-            <a href="https://novesteria.com" class="brand">
-                <svg width="24" height="24" viewBox="0 0 100 100" aria-hidden="true">
-                    <path d="M50 8 L84 23 L84 53 C84 76 68 90 50 96 C32 90 16 76 16 53 L16 23 Z"
-                          stroke="currentColor" stroke-width="6" stroke-linejoin="round" fill="none"/>
-                </svg>
-                <span>aegis</span>
-            </a>
-            <a href="https://novesteria.com" class="header-link">by Novesteria ↗</a>
+            <div class="header-actions">
+                <nav class="site-nav" aria-label="Primary navigation">
+                    <a href="#editions">Core &amp; Full</a>
+                    <a href="#method">Method</a>
+                    <a href="#coverage">Coverage</a>
+                </nav>
+                <a href="/scan?engine=core" class="button header-cta">Run Core free</a>
+            </div>
         </div>
-        <a href="/scan" class="header-cta">Try it</a>
     </header>
 
-    <main>
-        <div class="container">
-            <p class="eyebrow">Deterministic verification</p>
-
-            <h1>A deterministic validator for AI-generated code.</h1>
-
-            <p class="lede">
-                <strong>Reproducible. Multi-stack. Quiet enough to run in your pipeline.</strong>
-                Aegis runs a layered check pipeline against generated code and reports
-                whether it's shippable — most layers deterministic, a couple LLM-judged
-                only where they earn their place.
-            </p>
-
-            <div class="grid">
-                <div class="grid-item">
-                    <h3>What it does</h3>
-                    <p>A multi-layer pipeline: AST checks, cross-file consistency, dependency and package install, type-check, test runners, then an LLM-judged design-fidelity pass with a deterministic override. Output: ship, or an honest FAILED.</p>
+    <main class="home-main">
+        <section class="home-hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Open and managed verification</p>
+                <h1>A deterministic validator for AI-generated code.</h1>
+                <p class="lede">
+                    <strong>Start free with 24 open-source layers. Go deeper with 75.</strong>
+                    Aegis examines generated code layer by layer, then returns a verdict
+                    backed by evidence — directly in your browser.
+                </p>
+                <div class="hero-actions">
+                    <a href="/scan?engine=core" class="button button-primary">
+                        Run 24 layers free <span class="arrow" aria-hidden="true">→</span>
+                    </a>
+                    <a href="/scan?engine=full" class="button button-secondary">Explore Aegis Full</a>
                 </div>
-                <div class="grid-item">
-                    <h3>Stacks today</h3>
-                    <p>Python, Node.js (TypeScript / JavaScript), and static HTML.</p>
-                </div>
-                <div class="grid-item">
-                    <h3>Reproducible</h3>
-                    <p>A benchmark cohort (<code>aegis-bench</code>) — any machine, same cases, same results. The output is the evidence.</p>
+                <div class="trust-row" aria-label="Product attributes">
+                    <span>Core · free &amp; open source</span>
+                    <span>Full · proprietary &amp; paid</span>
+                    <span>Isolated hosted scans</span>
                 </div>
             </div>
 
-            <div class="cta-row">
-                <a href="/scan" class="cta">
-                    Try it on your code
-                    <span aria-hidden="true">→</span>
-                </a>
-                <a href="https://novesteria.com" class="cta-secondary">
-                    About Novesteria
-                </a>
+            <div class="proof-stage" aria-label="Example Aegis validation report">
+                <div class="report-window">
+                    <div class="window-bar">
+                        <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span>core_validation_report.json</span>
+                        <span>00:18.4</span>
+                    </div>
+                    <div class="report-body">
+                        <div class="report-verdict">
+                            <div>
+                                <div class="verdict-kicker">Verification complete</div>
+                                <h2>PASSED</h2>
+                            </div>
+                            <div class="verdict-score">24</div>
+                        </div>
+                        <div class="check-list">
+                            <div class="check-row">
+                                <span class="check-mark">✓</span>
+                                <span class="check-name">Cross-file consistency</span>
+                                <span class="check-kind">deterministic</span>
+                            </div>
+                            <div class="check-row">
+                                <span class="check-mark">✓</span>
+                                <span class="check-name">Dependency resolution</span>
+                                <span class="check-kind">deterministic</span>
+                            </div>
+                            <div class="check-row">
+                                <span class="check-mark">✓</span>
+                                <span class="check-name">Type check &amp; test runners</span>
+                                <span class="check-kind">runtime</span>
+                            </div>
+                            <div class="check-row">
+                                <span class="check-mark">✓</span>
+                                <span class="check-name">Design brief fidelity</span>
+                                <span class="check-kind">hybrid</span>
+                            </div>
+                        </div>
+                        <div class="report-command"><b>WEB</b> Aegis Core · 24-layer scan</div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
+
+        <section class="edition-section" id="editions">
+            <div class="edition-heading">
+                <p class="section-label">Choose the engine</p>
+                <h2>One product. Two clearly different depths.</h2>
+                <p>Core is the free, open-source baseline. Full is the proprietary managed engine for teams that need broader verification.</p>
+            </div>
+            <div class="edition-grid">
+                <article class="edition-card edition-core">
+                    <div class="edition-card-top">
+                        <span class="edition-name">Aegis Core</span>
+                        <span class="edition-badge badge-free">Free</span>
+                    </div>
+                    <div class="edition-count"><strong>24</strong><span>verification layers</span></div>
+                    <p>Open-source validation for structure, dependencies, cross-file consistency, builds, tests and requested features.</p>
+                    <ul class="edition-facts">
+                        <li>Free hosted scans</li>
+                        <li>Open-source · Apache 2.0</li>
+                        <li>Detailed layer evidence</li>
+                    </ul>
+                    <a href="/scan?engine=core" class="button button-primary">Use Core on this site <span class="arrow" aria-hidden="true">→</span></a>
+                </article>
+
+                <article class="edition-card edition-full">
+                    <div class="edition-card-top">
+                        <span class="edition-name">Aegis Full</span>
+                        <span class="edition-badge badge-paid">Paid access</span>
+                    </div>
+                    <div class="edition-count"><strong>75</strong><span>verification layers</span></div>
+                    <p>Closed-source managed verification with substantially deeper checks across runtime, contracts, schemas and infrastructure.</p>
+                    <ul class="edition-facts">
+                        <li>Commercial hosted engine</li>
+                        <li>Proprietary verification layers</li>
+                        <li>Access controlled by account</li>
+                    </ul>
+                    <a href="/scan?engine=full" class="button button-inverse">View Full access <span class="arrow" aria-hidden="true">→</span></a>
+                </article>
+            </div>
+        </section>
+
+        <section class="signal-strip" aria-label="Aegis capabilities">
+            <div class="signal-shell">
+                <div class="signal">
+                    <span class="signal-icon">01</span>
+                    <span><strong>Real execution</strong><span>Installs, builds, types and tests the project.</span></span>
+                </div>
+                <div class="signal">
+                    <span class="signal-icon">02</span>
+                    <span><strong>Cross-file reasoning</strong><span>Finds drift that isolated linters cannot see.</span></span>
+                </div>
+                <div class="signal">
+                    <span class="signal-icon">03</span>
+                    <span><strong>Evidence in the output</strong><span>Every failure returns a concrete reason.</span></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section" id="method">
+            <div class="section-heading">
+                <p class="section-label">The method</p>
+                <h2>Generated is not the same as verified.</h2>
+                <p>Aegis treats a codebase as a connected system. Cheap structural checks run first; builds, tests and semantic checks follow only where they apply.</p>
+            </div>
+            <div class="method-grid">
+                <article class="method-card">
+                    <div class="method-number">01 / Detect</div>
+                    <h3>Read the project</h3>
+                    <p>Aegis detects Python, Node.js, TypeScript, JavaScript and static HTML surfaces before selecting applicable checks.</p>
+                </article>
+                <article class="method-card">
+                    <div class="method-number">02 / Verify</div>
+                    <h3>Run the layers</h3>
+                    <p>Syntax, imports, dependencies, cross-file contracts, builds and tests are evaluated in a repeatable order.</p>
+                </article>
+                <article class="method-card">
+                    <div class="method-number">03 / Report</div>
+                    <h3>Return the evidence</h3>
+                    <p>You receive a clear pass or fail, stack detection, timings and the exact layer evidence behind the verdict.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="coverage-band" id="coverage">
+            <div class="coverage-shell">
+                <div class="coverage-copy">
+                    <p class="section-label">Coverage</p>
+                    <h2>One verdict. Several kinds of proof.</h2>
+                    <p>Most checks are deterministic. Model judgment is reserved for design and feature questions where static analysis alone cannot answer honestly.</p>
+                </div>
+                <div class="coverage-matrix" aria-label="Validation coverage categories">
+                    <div class="coverage-item"><span>STRUCTURE</span><strong>Syntax &amp; completeness</strong></div>
+                    <div class="coverage-item"><span>LINKAGE</span><strong>Imports &amp; cross-file consistency</strong></div>
+                    <div class="coverage-item"><span>TOOLCHAIN</span><strong>Dependencies &amp; package install</strong></div>
+                    <div class="coverage-item"><span>EXECUTION</span><strong>Type checks, builds &amp; tests</strong></div>
+                    <div class="coverage-item"><span>DESIGN</span><strong>Brief fidelity with evidence override</strong></div>
+                    <div class="coverage-item"><span>FEATURES</span><strong>Requested capability coverage</strong></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="final-cta">
+            <div>
+                <p class="section-label">Start with Core</p>
+                <h2>Upload the code. Run 24 layers free.</h2>
+            </div>
+            <div class="final-actions">
+                <a href="/scan?engine=core" class="button button-primary">Run Core free <span class="arrow" aria-hidden="true">→</span></a>
+                <a href="/scan?engine=full" class="button button-secondary">Aegis Full</a>
+            </div>
+        </section>
     </main>
 
-    <footer>
-        Aegis · by <a href="https://novesteria.com">Novesteria</a>
+    <footer class="site-footer">
+        <div class="footer-shell">
+            <span>Aegis · deterministic validation for AI-generated code</span>
+            <span>Built by <a href="https://novesteria.com">Novesteria</a></span>
+        </div>
     </footer>
 </body>
 </html>

@@ -9,8 +9,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-    <title>Try Aegis · by Novesteria</title>
-    <meta name="description" content="Sign in, upload your code, get a real Aegis Core report back — run in an isolated sandbox, nothing kept." />
+    <title>Run Aegis Core or Full · by Novesteria</title>
+    <meta name="description" content="Run the free 24-layer Aegis Core engine on this site, or access the proprietary 75-layer Aegis Full engine." />
     <meta name="author" content="Novesteria" />
     <link rel="canonical" href="https://aegis.novesteria.com/scan" />
     <meta name="robots" content="noindex" />
@@ -315,96 +315,316 @@
 
         [hidden] { display: none !important; }
     </style>
+    <link rel="stylesheet" href="aegis-site.css" />
 </head>
 <body>
-    <header>
-        <div class="header-brand-group">
-            <a href="/" class="brand">
-                <svg width="24" height="24" viewBox="0 0 100 100" aria-hidden="true">
-                    <path d="M50 8 L84 23 L84 53 C84 76 68 90 50 96 C32 90 16 76 16 53 L16 23 Z"
-                          stroke="currentColor" stroke-width="6" stroke-linejoin="round" fill="none"/>
-                </svg>
-                <span>aegis</span>
-            </a>
-            <a href="https://novesteria.com" class="header-link">by Novesteria ↗</a>
+    <header class="site-header">
+        <div class="nav-shell">
+            <div class="header-brand-group">
+                <a href="/" class="brand" aria-label="Aegis home">
+                    <span class="brand-mark">
+                        <svg viewBox="0 0 100 100" aria-hidden="true">
+                            <path d="M50 8 L84 23 L84 53 C84 76 68 90 50 96 C32 90 16 76 16 53 L16 23 Z"
+                                  stroke="currentColor" stroke-width="7" stroke-linejoin="round" fill="none"/>
+                        </svg>
+                    </span>
+                    <span>aegis</span>
+                </a>
+                <a href="https://novesteria.com" class="header-link">by Novesteria ↗</a>
+            </div>
+            <nav class="site-nav" aria-label="Secondary navigation">
+                <a href="/">← Product overview</a>
+            </nav>
         </div>
     </header>
 
-    <main>
-        <div class="container" id="containerEl">
-            <p class="eyebrow">Try it</p>
-            <h1>Run the Aegis engine on your own code.</h1>
-            <p class="lede">
-                Sign in, upload a <code>.zip</code>, and get back a real report — the same
-                75-layer engine that verifies every project Team-AI builds, run inside an
-                isolated sandbox. Nothing you upload is kept.
-            </p>
-
-            <div class="panel" id="signinPanel">
-                <p class="hint">One click — we only ask for your name and email.</p>
-                <a id="aegisSignin" class="cta" href="https://aegis-full-api-production.up.railway.app/api/auth/google/start">
-                    Sign in with Google
-                </a>
+    <main class="scan-main">
+        <div class="scan-container" id="containerEl">
+            <div class="scan-intro">
+                <p class="eyebrow">Aegis hosted verification</p>
+                <h1>Choose your verification depth.</h1>
+                <p class="lede">
+                    Run the open-source 24-layer Core pipeline free on this site, or use the
+                    proprietary 75-layer Full engine with a paid account. Both run inside
+                    isolated sandboxes; uploaded archives are not retained.
+                </p>
             </div>
 
-            <div class="panel" id="uploadPanel" hidden>
-                <div class="dropzone" id="dropzone">
-                    <label for="aegisFile">Choose a .zip file, or drag one here</label>
-                    <input type="file" id="aegisFile" accept=".zip" />
-                    <div class="filename" id="filenameEl"></div>
+            <fieldset class="engine-picker" aria-describedby="engineHelp">
+                <legend class="section-label">Select an engine</legend>
+                <p id="engineHelp" class="engine-help">Your choice determines which verification pipeline runs on the uploaded project.</p>
+                <div class="engine-options">
+                    <input type="radio" name="engine" id="engineCore" value="core" checked />
+                    <label class="engine-option" for="engineCore">
+                        <span class="engine-option-head">
+                            <span class="engine-title">Aegis Core</span>
+                            <span class="edition-badge badge-free">Free</span>
+                        </span>
+                        <strong><b>24</b> open-source layers</strong>
+                        <span>Run it here. No GitHub redirect.</span>
+                    </label>
+
+                    <input type="radio" name="engine" id="engineFull" value="full" />
+                    <label class="engine-option engine-option-full" for="engineFull">
+                        <span class="engine-option-head">
+                            <span class="engine-title">Aegis Full</span>
+                            <span class="edition-badge badge-paid">Paid access</span>
+                        </span>
+                        <strong><b>75</b> proprietary layers</strong>
+                        <span>Available to licensed accounts.</span>
+                    </label>
                 </div>
-                <div class="actions">
-                    <button id="aegisRun" class="cta" type="button">Run Aegis</button>
-                    <button id="aegisSignout" class="cta-secondary" type="button">Sign out</button>
+            </fieldset>
+
+            <div class="scan-layout">
+                <div class="scan-action">
+                    <section class="panel" id="signinPanel" aria-labelledby="signinTitle">
+                        <div class="panel-head">
+                            <div>
+                                <p class="section-label" id="signinKicker">Aegis Core · Free</p>
+                                <h2 id="signinTitle">Sign in to run 24 layers</h2>
+                            </div>
+                            <span class="panel-index" aria-hidden="true">01</span>
+                        </div>
+                        <p class="hint">We only ask for your name and email. Authentication keeps scan reports private to you.</p>
+                        <a id="aegisSignin" class="button button-primary signin-button" href="https://aegis-full-api-production.up.railway.app/api/auth/google/start">
+                            Sign in with Google <span class="arrow" aria-hidden="true">→</span>
+                        </a>
+                        <p class="privacy-note">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                            Uploaded archives are processed in isolation and not retained.
+                        </p>
+                    </section>
+
+                    <section class="panel access-panel" id="accessPanel" hidden aria-labelledby="accessTitle">
+                        <div class="panel-head">
+                            <div>
+                                <p class="section-label">Aegis Full · Paid</p>
+                                <h2 id="accessTitle">Checking Full access</h2>
+                            </div>
+                            <span class="panel-index" aria-hidden="true">02</span>
+                        </div>
+                        <p class="hint" id="accessMessage"><span class="spinner"></span>Checking your account entitlement…</p>
+                        <div class="actions">
+                            <button id="useCoreInstead" class="button button-primary" type="button">Use Core free</button>
+                            <button id="aegisLockedSignout" class="button button-secondary" type="button">Sign out</button>
+                        </div>
+                    </section>
+
+                    <section class="panel" id="uploadPanel" hidden aria-labelledby="uploadTitle">
+                        <div class="panel-head">
+                            <div>
+                                <p class="section-label" id="uploadKicker">Aegis Core · 24 layers</p>
+                                <h2 id="uploadTitle">Choose the code to verify</h2>
+                            </div>
+                            <span class="panel-index" aria-hidden="true">02</span>
+                        </div>
+                        <div class="dropzone" id="dropzone">
+                            <label for="aegisFile" tabindex="0">
+                                <span class="upload-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M5 15v4h14v-4"/></svg>
+                                </span>
+                                <strong>Drop your .zip here</strong>
+                                <span>or click to choose a project archive</span>
+                            </label>
+                            <input type="file" id="aegisFile" accept=".zip,application/zip" />
+                            <div class="filename" id="filenameEl"></div>
+                        </div>
+                        <div class="actions">
+                            <button id="aegisRun" class="button button-primary" type="button">Run Core free</button>
+                            <button id="aegisSignout" class="button button-secondary" type="button">Sign out</button>
+                        </div>
+                        <div class="status-line" id="statusEl" aria-live="polite"></div>
+                    </section>
                 </div>
-                <div class="status-line" id="statusEl" aria-live="polite"></div>
+
+                <aside class="scan-aside" aria-labelledby="processTitle">
+                    <p class="section-label" id="processKicker">Core scan · Free</p>
+                    <h2 id="processTitle">From archive to evidence</h2>
+                    <ol class="process-list">
+                        <li data-step="1"><strong>Detect the stack</strong>Python, Node.js, TypeScript, JavaScript and static HTML are identified.</li>
+                        <li data-step="2"><strong id="processEngineTitle">Run the 24-layer pipeline</strong><span id="processEngineCopy">Core evaluates every check that applies to the detected stack.</span></li>
+                        <li data-step="3"><strong>Return the verdict</strong>Passed and failed checks come back with timings and concrete evidence.</li>
+                    </ol>
+                    <hr class="aside-rule" />
+                    <div class="aside-meta" aria-label="Scan attributes">
+                        <span id="asideEngine">core · 24</span><span>isolated</span><span>ephemeral</span>
+                    </div>
+                </aside>
             </div>
 
             <div class="report" id="reportEl" hidden></div>
         </div>
     </main>
 
-    <footer>
-        Aegis · by <a href="https://novesteria.com">Novesteria</a>
+    <footer class="site-footer">
+        <div class="footer-shell">
+            <span>Aegis Core · free 24-layer scan · Aegis Full · paid 75-layer scan</span>
+            <span>Built by <a href="https://novesteria.com">Novesteria</a></span>
+        </div>
     </footer>
 
     <script>
     (function () {
         var API = 'https://aegis-full-api-production.up.railway.app';
         var TOKEN_KEY = 'aegis_token';
+        var ENGINE_KEY = 'aegis_engine';
+        var access = { core: true, full: null };
+        var accessLoading = false;
 
-        function getToken() { try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; } }
-        function setToken(t) { try { localStorage.setItem(TOKEN_KEY, t); } catch (e) {} }
-        function clearToken() { try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+        function getStored(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+        function setStored(key, value) { try { localStorage.setItem(key, value); } catch (e) {} }
+        function removeStored(key) { try { localStorage.removeItem(key); } catch (e) {} }
+        function getToken() { return getStored(TOKEN_KEY); }
+        function clearToken() { removeStored(TOKEN_KEY); }
+        function normalizeEngine(value) { return value === 'full' ? 'full' : 'core'; }
+        function escapeHtml(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[char];
+            });
+        }
 
         (function consumeHash() {
             var m = location.hash.match(/aegis_token=([^&]+)/);
             if (m) {
-                setToken(decodeURIComponent(m[1]));
+                setStored(TOKEN_KEY, decodeURIComponent(m[1]));
                 history.replaceState(null, '', location.pathname + location.search);
             } else if (/aegis_error=/.test(location.hash)) {
                 history.replaceState(null, '', location.pathname + location.search);
             }
         })();
 
+        var queryEngine = new URLSearchParams(location.search).get('engine');
+        var initialEngine = normalizeEngine(queryEngine || getStored(ENGINE_KEY));
+
         var signinPanel = document.getElementById('signinPanel');
         var uploadPanel = document.getElementById('uploadPanel');
+        var accessPanel = document.getElementById('accessPanel');
+        var accessTitle = document.getElementById('accessTitle');
+        var accessMessage = document.getElementById('accessMessage');
+        var signinKicker = document.getElementById('signinKicker');
+        var signinTitle = document.getElementById('signinTitle');
+        var uploadKicker = document.getElementById('uploadKicker');
+        var processKicker = document.getElementById('processKicker');
+        var processEngineTitle = document.getElementById('processEngineTitle');
+        var processEngineCopy = document.getElementById('processEngineCopy');
+        var asideEngine = document.getElementById('asideEngine');
+        var engineInputs = Array.prototype.slice.call(document.querySelectorAll('input[name="engine"]'));
         var dropzone = document.getElementById('dropzone');
         var fileInput = document.getElementById('aegisFile');
         var filenameEl = document.getElementById('filenameEl');
         var runBtn = document.getElementById('aegisRun');
         var signoutBtn = document.getElementById('aegisSignout');
+        var lockedSignoutBtn = document.getElementById('aegisLockedSignout');
+        var useCoreInstead = document.getElementById('useCoreInstead');
         var statusEl = document.getElementById('statusEl');
         var reportEl = document.getElementById('reportEl');
 
+        engineInputs.forEach(function (input) { input.checked = input.value === initialEngine; });
+        setStored(ENGINE_KEY, initialEngine);
+
+        function selectedEngine() {
+            var selected = engineInputs.filter(function (input) { return input.checked; })[0];
+            return normalizeEngine(selected && selected.value);
+        }
+
+        function syncEngineCopy() {
+            var engine = selectedEngine();
+            var isFull = engine === 'full';
+            signinKicker.textContent = isFull ? 'Aegis Full · Paid access' : 'Aegis Core · Free';
+            signinTitle.textContent = isFull ? 'Sign in to verify Full access' : 'Sign in to run 24 layers';
+            uploadKicker.textContent = isFull ? 'Aegis Full · 75 layers' : 'Aegis Core · 24 layers';
+            runBtn.textContent = isFull ? 'Run Aegis Full' : 'Run Core free';
+            processKicker.textContent = isFull ? 'Full scan · Paid' : 'Core scan · Free';
+            processEngineTitle.textContent = isFull ? 'Run the 75-layer pipeline' : 'Run the 24-layer pipeline';
+            processEngineCopy.textContent = isFull
+                ? 'Full evaluates deeper runtime, contract, schema and infrastructure risks.'
+                : 'Core evaluates every check that applies to the detected stack.';
+            asideEngine.textContent = isFull ? 'full · 75' : 'core · 24';
+        }
+
+        function setEngine(engine) {
+            engine = normalizeEngine(engine);
+            engineInputs.forEach(function (input) { input.checked = input.value === engine; });
+            setStored(ENGINE_KEY, engine);
+            history.replaceState(null, '', location.pathname + '?engine=' + engine);
+            reportEl.hidden = true;
+            reportEl.innerHTML = '';
+            setStatus('');
+            syncEngineCopy();
+            render();
+        }
+
+        function checkFullAccess(token) {
+            if (accessLoading || access.full !== null) return;
+            accessLoading = true;
+            fetch(API + '/api/access', { headers: { Authorization: 'Bearer ' + token } })
+                .then(function (res) {
+                    if (res.status === 401) {
+                        clearToken();
+                        access.full = null;
+                        render();
+                        return null;
+                    }
+                    if (!res.ok) throw new Error('access');
+                    return res.json();
+                })
+                .then(function (body) {
+                    if (!body) return;
+                    access.full = body.full === true;
+                    render();
+                })
+                .catch(function () {
+                    access.full = 'error';
+                    render();
+                })
+                .then(function () { accessLoading = false; });
+        }
+
         function render() {
             var token = getToken();
+            var engine = selectedEngine();
+            var isFull = engine === 'full';
             signinPanel.hidden = !!token;
-            uploadPanel.hidden = !token;
+            uploadPanel.hidden = true;
+            accessPanel.hidden = true;
+
+            if (!token) return;
+            if (!isFull || access.full === true) {
+                uploadPanel.hidden = false;
+                return;
+            }
+
+            accessPanel.hidden = false;
+            if (access.full === false) {
+                accessTitle.textContent = 'Full access is not active';
+                accessMessage.textContent = 'Aegis Full is the paid 75-layer engine. This account can use the free 24-layer Core scan now.';
+            } else if (access.full === 'error') {
+                accessTitle.textContent = 'Access could not be verified';
+                accessMessage.textContent = 'Try again later or switch to the free 24-layer Core engine.';
+            } else {
+                accessTitle.textContent = 'Checking Full access';
+                accessMessage.innerHTML = '<span class="spinner"></span>Checking your account entitlement…';
+                checkFullAccess(token);
+            }
         }
-        render();
 
         function setStatus(html) { statusEl.innerHTML = html || ''; }
+        function signOut() {
+            clearToken();
+            access.full = null;
+            setStatus('');
+            reportEl.hidden = true;
+            reportEl.innerHTML = '';
+            render();
+        }
+
+        engineInputs.forEach(function (input) {
+            input.addEventListener('change', function () { setEngine(input.value); });
+        });
+        useCoreInstead.addEventListener('click', function () { setEngine('core'); });
+        signoutBtn.addEventListener('click', signOut);
+        lockedSignoutBtn.addEventListener('click', signOut);
 
         ['dragover', 'dragenter'].forEach(function (evt) {
             dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.add('drag'); });
@@ -420,47 +640,55 @@
             var f = fileInput.files && fileInput.files[0];
             filenameEl.textContent = f ? f.name : '';
         });
+        var fileLabel = document.querySelector('label[for="aegisFile"]');
+        if (fileLabel) {
+            fileLabel.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    fileInput.click();
+                }
+            });
+        }
 
         function fmtDuration(sec) {
-            if (sec == null) return '';
+            sec = Number(sec);
+            if (!Number.isFinite(sec)) return '';
             if (sec < 60) return sec.toFixed(1) + 's';
             return Math.floor(sec / 60) + 'm ' + Math.round(sec % 60) + 's';
         }
 
         function layerRow(layer) {
-            var mark = layer.verdict === 'passed' ? '✓' : layer.verdict === 'skipped' ? '·' : '✗';
-            return '<div class="layer-row ' + layer.verdict + '">' +
+            var verdict = ['passed', 'failed', 'error', 'skipped'].indexOf(layer.verdict) >= 0 ? layer.verdict : 'error';
+            var mark = verdict === 'passed' ? '✓' : verdict === 'skipped' ? '·' : '✗';
+            return '<div class="layer-row ' + verdict + '">' +
                 '<span class="layer-mark">' + mark + '</span>' +
-                '<span class="layer-name">' + layer.name + '</span>' +
-                '<span class="layer-summary">' + (layer.summary || layer.verdict) + '</span>' +
+                '<span class="layer-name">' + escapeHtml(layer.name) + '</span>' +
+                '<span class="layer-summary">' + escapeHtml(layer.summary || verdict) + '</span>' +
                 '</div>';
         }
 
-        function renderReport(report) {
-            // report.layers is Core/OSS-only by the time it reaches the browser —
-            // the full-engine results are pre-aggregated into full_engine_note
-            // server-side (see aegis_full/api/report_sanitize.py). Nothing here
-            // should try to list or count full-engine layers individually.
+        function renderReport(report, engine) {
+            // Full reports expose Core detail plus safe aggregate counts for
+            // proprietary layers. Core reports can expose every layer directly.
             var layers = (report && report.layers) || [];
-            var failed = layers.filter(function (l) { return l.verdict === 'failed' || l.verdict === 'error'; });
-            var passedCount = layers.filter(function (l) { return l.verdict === 'passed'; }).length;
-            var skippedCount = layers.filter(function (l) { return l.verdict === 'skipped'; }).length;
-
+            var failed = layers.filter(function (layer) { return layer.verdict === 'failed' || layer.verdict === 'error'; });
+            var passedCount = layers.filter(function (layer) { return layer.verdict === 'passed'; }).length;
+            var skippedCount = layers.filter(function (layer) { return layer.verdict === 'skipped'; }).length;
             var engineCounts = (report && report.full_engine_counts) || { passed: 0, failed: 0, skipped: 0 };
-            var totalFailed = failed.length + engineCounts.failed;
-            var totalPassed = passedCount + engineCounts.passed;
-            var totalSkipped = skippedCount + engineCounts.skipped;
-
+            var totalFailed = failed.length + Number(engineCounts.failed || 0);
+            var totalPassed = passedCount + Number(engineCounts.passed || 0);
+            var totalSkipped = skippedCount + Number(engineCounts.skipped || 0);
             var passClass = report && report.passed ? 'pass' : 'fail';
             var stacks = (report && report.stacks_detected || []).join(', ') || 'unknown';
+            var engineLabel = engine === 'full' ? 'Aegis Full · 75 layers' : 'Aegis Core · 24 layers';
 
             var html = '';
+            html += '<div class="report-tier">' + escapeHtml(engineLabel) + '</div>';
             html += '<div class="verdict-banner ' + passClass + '">' +
                 '<span class="verdict-label">' + (report && report.passed ? 'PASSED' : 'FAILED') + '</span>' +
-                '<span class="verdict-meta">stack: ' + stacks + '<br>' +
-                (report ? fmtDuration(report.duration_seconds) : '') + '</span>' +
+                '<span class="verdict-meta">' + escapeHtml(engineLabel) + '<br>stack: ' + escapeHtml(stacks) + '<br>' +
+                (report ? escapeHtml(fmtDuration(report.duration_seconds)) : '') + '</span>' +
                 '</div>';
-
             html += '<div class="stat-row">' +
                 '<div class="stat stat-pass"><b>' + totalPassed + '</b>passed</div>' +
                 '<div class="stat stat-fail"><b>' + totalFailed + '</b>failed</div>' +
@@ -468,18 +696,15 @@
                 '</div>';
 
             if (report && report.passed_note) {
-                html += '<p class="full-engine-note passed">' + report.passed_note + '</p>';
+                html += '<p class="full-engine-note passed">' + escapeHtml(report.passed_note) + '</p>';
             }
-
             if (report && report.full_engine_note) {
-                html += '<p class="full-engine-note">' + report.full_engine_note + '</p>';
+                html += '<p class="full-engine-note">' + escapeHtml(report.full_engine_note) + '</p>';
             }
-
             if (failed.length) {
                 html += '<details class="layer-group" open><summary>Failed (' + failed.length + ')</summary>' +
                     failed.map(layerRow).join('') + '</details>';
             }
-
             html += '<div class="scan-again"><button class="cta-secondary" type="button" onclick="location.reload()">Scan another project</button></div>';
 
             reportEl.innerHTML = html;
@@ -487,43 +712,46 @@
             reportEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        function poll(id, token) {
+        function poll(id, token, engine) {
             var attempts = 0;
             function tick() {
                 attempts += 1;
-                fetch(API + '/api/scans/' + id, { headers: { Authorization: 'Bearer ' + token } })
+                fetch(API + '/api/scans/' + encodeURIComponent(id), { headers: { Authorization: 'Bearer ' + token } })
                     .then(function (res) {
                         if (res.status === 401) {
-                            clearToken(); render();
-                            setStatus('Your session expired — sign in again.');
+                            clearToken();
+                            render();
                             return null;
                         }
-                        if (!res.ok) { setStatus('Could not check status (HTTP ' + res.status + ').'); return null; }
+                        if (!res.ok) {
+                            setStatus('Could not check status (HTTP ' + escapeHtml(res.status) + ').');
+                            return null;
+                        }
                         return res.json();
                     })
                     .then(function (scan) {
                         if (!scan) return;
-                        if (scan.status === 'done') { setStatus(''); renderReport(scan.report); return; }
-                        if (scan.status === 'failed') { setStatus('Failed: ' + (scan.error || 'unknown error')); return; }
-                        setStatus('<span class="spinner"></span>Running… (' + scan.status + ')');
-                        if (attempts < 120) { setTimeout(tick, 3000); }
-                        else { setStatus('Still running — taking longer than expected.'); }
+                        if (scan.status === 'done') {
+                            setStatus('');
+                            renderReport(scan.report, normalizeEngine(scan.engine || engine));
+                            return;
+                        }
+                        if (scan.status === 'failed') {
+                            setStatus('Scan failed: ' + escapeHtml(scan.error || 'unknown error'));
+                            return;
+                        }
+                        setStatus('<span class="spinner"></span>Running… (' + escapeHtml(scan.status) + ')');
+                        if (attempts < 120) setTimeout(tick, 3000);
+                        else setStatus('Still running — taking longer than expected.');
                     })
                     .catch(function () { setStatus('Network error while checking status.'); });
             }
             setTimeout(tick, 1500);
         }
 
-        signoutBtn.addEventListener('click', function () {
-            clearToken();
-            setStatus('');
-            reportEl.hidden = true;
-            reportEl.innerHTML = '';
-            render();
-        });
-
         runBtn.addEventListener('click', function () {
             var token = getToken();
+            var engine = selectedEngine();
             if (!token) { render(); return; }
             var file = fileInput.files && fileInput.files[0];
             if (!file) { setStatus('Choose a .zip file first.'); return; }
@@ -534,20 +762,27 @@
             setStatus('<span class="spinner"></span>Uploading…');
             var form = new FormData();
             form.append('file', file);
+            form.append('engine', engine);
             fetch(API + '/api/scans', {
                 method: 'POST',
                 headers: { Authorization: 'Bearer ' + token },
                 body: form,
             }).then(function (res) {
                 if (res.status === 401) {
-                    clearToken(); render();
-                    setStatus('Your session expired — sign in again.');
+                    clearToken();
+                    render();
+                    runBtn.disabled = false;
+                    return null;
+                }
+                if (res.status === 402) {
+                    access.full = false;
+                    render();
                     runBtn.disabled = false;
                     return null;
                 }
                 if (!res.ok) {
                     return res.json().catch(function () { return {}; }).then(function (body) {
-                        setStatus('Could not start the scan' + (body.detail ? ': ' + body.detail : '.'));
+                        setStatus('Could not start the scan' + (body.detail ? ': ' + escapeHtml(body.detail) : '.'));
                         runBtn.disabled = false;
                         return null;
                     });
@@ -556,13 +791,16 @@
             }).then(function (job) {
                 if (!job) return;
                 setStatus('<span class="spinner"></span>Queued…');
-                poll(job.id, token);
+                poll(job.id, token, normalizeEngine(job.engine || engine));
                 runBtn.disabled = false;
             }).catch(function () {
                 setStatus('Network error while uploading.');
                 runBtn.disabled = false;
             });
         });
+
+        syncEngineCopy();
+        render();
     })();
     </script>
 </body>
